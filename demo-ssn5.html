@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Pitchside — Ssn 5 (sample)</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  #boot-status { font-family: sans-serif; color: #F5EFDC; background:#0F2C22; min-height:100vh;
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:24px; }
+</style>
+</head>
+<body>
+<div id="root"><div id="boot-status">Loading Pitchside…</div></div>
+
+<script>
+  window.addEventListener("error", function (e) {
+    var el = document.getElementById("boot-status");
+    if (el) el.innerText = "Something failed to load (" + e.message + "). Check your connection and reload.";
+  }, true);
+  // seed this browser's storage with the Ssn 5 data so the demo opens pre-populated
+  window.localStorage.setItem("pitchside_v2", "{\n  \"teams\": [\n    {\n      \"id\": \"AS\",\n      \"name\": \"AS\",\n      \"color1\": \"#1B4332\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"GAW\",\n      \"name\": \"GAW\",\n      \"color1\": \"#0B3D91\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"MI\",\n      \"name\": \"MI\",\n      \"color1\": \"#7A1E1E\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"PZ\",\n      \"name\": \"PZ\",\n      \"color1\": \"#013220\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"PS\",\n      \"name\": \"PS\",\n      \"color1\": \"#2A0944\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"BR\",\n      \"name\": \"BR\",\n      \"color1\": \"#062A38\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"DC\",\n      \"name\": \"DC\",\n      \"color1\": \"#3D0000\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"ISL\",\n      \"name\": \"ISL\",\n      \"color1\": \"#0D2C54\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"MS\",\n      \"name\": \"MS\",\n      \"color1\": \"#264653\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"TKR\",\n      \"name\": \"Trinbago Knight Riders\",\n      \"color1\": \"#3A0CA3\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"RCB\",\n      \"name\": \"RCB\",\n      \"color1\": \"#5C4033\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"LQ\",\n      \"name\": \"LQ\",\n      \"color1\": \"#134611\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"SS\",\n      \"name\": \"SS\",\n      \"color1\": \"#4A0E4E\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"SLK\",\n      \"name\": \"SLK\",\n      \"color1\": \"#003049\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"SRH\",\n      \"name\": \"SRH\",\n      \"color1\": \"#6A040F\",\n      \"color2\": null\n    },\n    {\n      \"id\": \"KK\",\n      \"name\": \"KK\",\n      \"color1\": \"#023E8A\",\n      \"color2\": null\n    }\n  ],\n  \"seasons\": [\n    {\n      \"id\": \"season-ssn5\",\n      \"name\": \"Ssn 5\",\n      \"oversPerMatch\": 20,\n      \"groups\": [\n        {\n          \"id\": \"grp-7\",\n          \"name\": \"A\",\n          \"teamIds\": [\n            \"AS\",\n            \"GAW\",\n            \"MI\",\n            \"PZ\"\n          ],\n          \"matches\": [\n            {\n              \"id\": \"m-1\",\n              \"team1Id\": \"AS\",\n              \"team2Id\": \"GAW\",\n              \"battingFirstId\": \"AS\",\n              \"score1\": {\n                \"runs\": \"175\",\n                \"wkts\": \"5\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"106\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Head 58(45)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-2\",\n              \"team1Id\": \"MI\",\n              \"team2Id\": \"PZ\",\n              \"battingFirstId\": \"MI\",\n              \"score1\": {\n                \"runs\": \"185\",\n                \"wkts\": \"4\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"133\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Rohit Sharma 53(23)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-3\",\n              \"team1Id\": \"AS\",\n              \"team2Id\": \"MI\",\n              \"battingFirstId\": \"AS\",\n              \"score1\": {\n                \"runs\": \"114\",\n                \"wkts\": \"9\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"212\",\n                \"wkts\": \"5\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"Bumrah 4/25\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-4\",\n              \"team1Id\": \"GAW\",\n              \"team2Id\": \"PZ\",\n              \"battingFirstId\": \"PZ\",\n              \"score1\": {\n                \"runs\": \"54\",\n                \"wkts\": \"1\",\n                \"overs\": \"6.2\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"53\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"A Joseph 5/21\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-5\",\n              \"team1Id\": \"AS\",\n              \"team2Id\": \"PZ\",\n              \"battingFirstId\": \"AS\",\n              \"score1\": {\n                \"runs\": \"142\",\n                \"wkts\": \"6\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"143\",\n                \"wkts\": \"0\",\n                \"overs\": \"14\",\n                \"allOut\": false\n              },\n              \"mom\": \"Bairstow 81*(45)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-6\",\n              \"team1Id\": \"GAW\",\n              \"team2Id\": \"MI\",\n              \"battingFirstId\": \"GAW\",\n              \"score1\": {\n                \"runs\": \"176\",\n                \"wkts\": \"7\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"148\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Shamsi 4/26\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            }\n          ]\n        },\n        {\n          \"id\": \"grp-14\",\n          \"name\": \"B\",\n          \"teamIds\": [\n            \"PS\",\n            \"BR\",\n            \"DC\",\n            \"ISL\"\n          ],\n          \"matches\": [\n            {\n              \"id\": \"m-8\",\n              \"team1Id\": \"PS\",\n              \"team2Id\": \"BR\",\n              \"battingFirstId\": \"PS\",\n              \"score1\": {\n                \"runs\": \"143\",\n                \"wkts\": \"7\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"145\",\n                \"wkts\": \"3\",\n                \"overs\": \"16.2\",\n                \"allOut\": false\n              },\n              \"mom\": \"Samson 44(27)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-9\",\n              \"team1Id\": \"DC\",\n              \"team2Id\": \"ISL\",\n              \"battingFirstId\": \"DC\",\n              \"score1\": {\n                \"runs\": \"189\",\n                \"wkts\": \"7\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"190\",\n                \"wkts\": \"7\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"Sharjeel 63(38)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-10\",\n              \"team1Id\": \"PS\",\n              \"team2Id\": \"DC\",\n              \"battingFirstId\": \"PS\",\n              \"score1\": {\n                \"runs\": \"120\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"score2\": {\n                \"runs\": \"122\",\n                \"wkts\": \"3\",\n                \"overs\": \"19.1\",\n                \"allOut\": false\n              },\n              \"mom\": \"Tahir 3/14\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-11\",\n              \"team1Id\": \"BR\",\n              \"team2Id\": \"ISL\",\n              \"battingFirstId\": \"ISL\",\n              \"score1\": {\n                \"runs\": \"135\",\n                \"wkts\": \"3\",\n                \"overs\": \"14\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"134\",\n                \"wkts\": \"9\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"A Hosein 4/2\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-12\",\n              \"team1Id\": \"PS\",\n              \"team2Id\": \"ISL\",\n              \"battingFirstId\": \"ISL\",\n              \"score1\": {\n                \"runs\": \"142\",\n                \"wkts\": \"3\",\n                \"overs\": \"14\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"137\",\n                \"wkts\": \"6\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"M Marsh 57(24)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-13\",\n              \"team1Id\": \"BR\",\n              \"team2Id\": \"DC\",\n              \"battingFirstId\": \"BR\",\n              \"score1\": {\n                \"runs\": \"205\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"score2\": {\n                \"runs\": \"200\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"A Hosein 4/27\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            }\n          ]\n        },\n        {\n          \"id\": \"grp-21\",\n          \"name\": \"C\",\n          \"teamIds\": [\n            \"MS\",\n            \"TKR\",\n            \"RCB\",\n            \"LQ\"\n          ],\n          \"matches\": [\n            {\n              \"id\": \"m-15\",\n              \"team1Id\": \"MS\",\n              \"team2Id\": \"TKR\",\n              \"battingFirstId\": \"MS\",\n              \"score1\": {\n                \"runs\": \"168\",\n                \"wkts\": \"7\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"183\",\n                \"wkts\": \"8\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"Munro 50(35)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-16\",\n              \"team1Id\": \"RCB\",\n              \"team2Id\": \"LQ\",\n              \"battingFirstId\": \"LQ\",\n              \"score1\": {\n                \"runs\": \"180\",\n                \"wkts\": \"2\",\n                \"overs\": \"16.2\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"179\",\n                \"wkts\": \"7\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"KL Rahul 89(44)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-17\",\n              \"team1Id\": \"MS\",\n              \"team2Id\": \"RCB\",\n              \"battingFirstId\": \"RCB\",\n              \"score1\": {\n                \"runs\": \"103\",\n                \"wkts\": \"4\",\n                \"overs\": \"15.3\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"102\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"F Ahmed 3/12\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-18\",\n              \"team1Id\": \"TKR\",\n              \"team2Id\": \"LQ\",\n              \"battingFirstId\": \"TKR\",\n              \"score1\": {\n                \"runs\": \"178\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"score2\": {\n                \"runs\": \"144\",\n                \"wkts\": \"7\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"Pooran 52(23)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-19\",\n              \"team1Id\": \"MS\",\n              \"team2Id\": \"LQ\",\n              \"battingFirstId\": \"MS\",\n              \"score1\": {\n                \"runs\": \"231\",\n                \"wkts\": \"4\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"163\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Finch 101(47)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-20\",\n              \"team1Id\": \"TKR\",\n              \"team2Id\": \"RCB\",\n              \"battingFirstId\": \"RCB\",\n              \"score1\": {\n                \"runs\": \"175\",\n                \"wkts\": \"5\",\n                \"overs\": \"19.1\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"174\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Pooran 83(44)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            }\n          ]\n        },\n        {\n          \"id\": \"grp-28\",\n          \"name\": \"D\",\n          \"teamIds\": [\n            \"SS\",\n            \"SLK\",\n            \"SRH\",\n            \"KK\"\n          ],\n          \"matches\": [\n            {\n              \"id\": \"m-22\",\n              \"team1Id\": \"SS\",\n              \"team2Id\": \"SLK\",\n              \"battingFirstId\": \"SS\",\n              \"score1\": {\n                \"runs\": \"124\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"score2\": {\n                \"runs\": \"125\",\n                \"wkts\": \"5\",\n                \"overs\": \"17.3\",\n                \"allOut\": false\n              },\n              \"mom\": \"Charles 81(55)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-23\",\n              \"team1Id\": \"SRH\",\n              \"team2Id\": \"KK\",\n              \"battingFirstId\": \"KK\",\n              \"score1\": {\n                \"runs\": \"72\",\n                \"wkts\": \"1\",\n                \"overs\": \"7.2\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"68\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Bhuvneshwar 6/18\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-24\",\n              \"team1Id\": \"SS\",\n              \"team2Id\": \"SRH\",\n              \"battingFirstId\": \"SRH\",\n              \"score1\": {\n                \"runs\": \"39\",\n                \"wkts\": \"1\",\n                \"overs\": \"7.5\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"35\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Starc 4/9\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-25\",\n              \"team1Id\": \"SLK\",\n              \"team2Id\": \"KK\",\n              \"battingFirstId\": \"SLK\",\n              \"score1\": {\n                \"runs\": \"167\",\n                \"wkts\": \"9\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"92\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"M Sharma 4/19\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-26\",\n              \"team1Id\": \"SS\",\n              \"team2Id\": \"KK\",\n              \"battingFirstId\": \"SS\",\n              \"score1\": {\n                \"runs\": \"199\",\n                \"wkts\": \"8\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"124\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Watson 66(28)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-27\",\n              \"team1Id\": \"SLK\",\n              \"team2Id\": \"SRH\",\n              \"battingFirstId\": \"SLK\",\n              \"score1\": {\n                \"runs\": \"164\",\n                \"wkts\": \"6\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"106\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Sehwag 55(38)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            }\n          ]\n        }\n      ],\n      \"knockoutRounds\": [\n        {\n          \"id\": \"round-33\",\n          \"name\": \"Quarters\",\n          \"matches\": [\n            {\n              \"id\": \"m-29\",\n              \"team1Id\": \"TKR\",\n              \"team2Id\": \"PS\",\n              \"battingFirstId\": \"PS\",\n              \"score1\": {\n                \"runs\": \"151\",\n                \"wkts\": \"6\",\n                \"overs\": \"17.3\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"145\",\n                \"wkts\": \"8\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"U Yadav 2/13\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-30\",\n              \"team1Id\": \"BR\",\n              \"team2Id\": \"GAW\",\n              \"battingFirstId\": \"BR\",\n              \"score1\": {\n                \"runs\": \"103\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"score2\": {\n                \"runs\": \"106\",\n                \"wkts\": \"4\",\n                \"overs\": \"17.4\",\n                \"allOut\": false\n              },\n              \"mom\": \"A Joseph 4/15\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-31\",\n              \"team1Id\": \"SLK\",\n              \"team2Id\": \"MS\",\n              \"battingFirstId\": \"SLK\",\n              \"score1\": {\n                \"runs\": \"194\",\n                \"wkts\": \"6\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"125\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Sehwag 81(42)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-32\",\n              \"team1Id\": \"MI\",\n              \"team2Id\": \"SS\",\n              \"battingFirstId\": \"MI\",\n              \"score1\": {\n                \"runs\": \"126\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"score2\": {\n                \"runs\": \"129\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Starc 4/25\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            }\n          ]\n        },\n        {\n          \"id\": \"round-36\",\n          \"name\": \"Semis\",\n          \"matches\": [\n            {\n              \"id\": \"m-34\",\n              \"team1Id\": \"TKR\",\n              \"team2Id\": \"GAW\",\n              \"battingFirstId\": \"TKR\",\n              \"score1\": {\n                \"runs\": \"153\",\n                \"wkts\": \"3\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"151\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"mom\": \"Narine 3/22\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            },\n            {\n              \"id\": \"m-35\",\n              \"team1Id\": \"SLK\",\n              \"team2Id\": \"SS\",\n              \"battingFirstId\": \"SLK\",\n              \"score1\": {\n                \"runs\": \"169\",\n                \"wkts\": \"\",\n                \"overs\": \"\",\n                \"allOut\": true\n              },\n              \"score2\": {\n                \"runs\": \"172\",\n                \"wkts\": \"4\",\n                \"overs\": \"19.3\",\n                \"allOut\": false\n              },\n              \"mom\": \"Warner 64(33)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            }\n          ]\n        },\n        {\n          \"id\": \"round-38\",\n          \"name\": \"Final\",\n          \"matches\": [\n            {\n              \"id\": \"m-37\",\n              \"team1Id\": \"TKR\",\n              \"team2Id\": \"SS\",\n              \"battingFirstId\": \"TKR\",\n              \"score1\": {\n                \"runs\": \"188\",\n                \"wkts\": \"7\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"score2\": {\n                \"runs\": \"161\",\n                \"wkts\": \"9\",\n                \"overs\": \"\",\n                \"allOut\": false\n              },\n              \"mom\": \"Pooran 68(39)\",\n              \"tieWinnerId\": null,\n              \"venue\": \"\",\n              \"date\": \"\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}");
+</script>
+
+<script>
+// ============================================================
+// Pitchside — data model helpers
+// ============================================================
+let uidCounter = 1;
+const uid = (p = "id") => `${p}-${Date.now().toString(36)}-${uidCounter++}`;
+const PALETTE = ["#1B4332", "#0B3D91", "#7A1E1E", "#013220", "#2A0944", "#062A38", "#3D0000", "#0D2C54", "#264653", "#3A0CA3"];
+function getTeam(teams, id) {
+  return teams.find(t => t.id === id) || null;
+}
+function teamName(teams, id) {
+  const t = getTeam(teams, id);
+  return t ? t.name : "TBD";
+}
+function blankScore() {
+  return {
+    runs: "",
+    wkts: "",
+    overs: "",
+    allOut: false
+  };
+}
+function blankMatch(team1Id = null, team2Id = null) {
+  return {
+    id: uid("m"),
+    team1Id,
+    team2Id,
+    battingFirstId: team1Id,
+    score1: blankScore(),
+    score2: blankScore(),
+    mom: "",
+    tieWinnerId: null,
+    venue: "",
+    date: ""
+  };
+}
+function isPlayed(match) {
+  return match.score1.runs !== "" && match.score2.runs !== "" && match.score1.runs != null && match.score2.runs != null;
+}
+
+// cricket overs notation "6.2" means 6 overs + 2 balls = 6 + 2/6 actual overs (not decimal 6.2)
+function oversToDecimal(overStr) {
+  if (overStr === "" || overStr === null || overStr === undefined) return 0;
+  const s = String(overStr);
+  const [whole, ballPart] = s.split(".");
+  const w = parseInt(whole || "0", 10) || 0;
+  let b = parseInt(ballPart || "0", 10) || 0;
+  if (b > 5) b = 5; // guard against invalid entry
+  return w + b / 6;
+}
+
+// overs actually faced by a side, for NRR purposes
+function oversForNRR(score, matchOvers) {
+  if (score.allOut) return matchOvers;
+  if (score.overs === "" || score.overs === null || score.overs === undefined) return matchOvers;
+  const n = oversToDecimal(score.overs);
+  return n > 0 ? Math.min(n, matchOvers) : matchOvers;
+}
+function formatOvers(o) {
+  const n = Number(o);
+  if (!isFinite(n)) return String(o);
+  return Number.isInteger(n) ? String(n) : String(n);
+}
+
+// "143" if all out, "185/4" if full quota not out, "54/1(6.2)" if finished early (successful chase)
+function formatScore(score, matchOvers) {
+  if (score.runs === "" || score.runs === null || score.runs === undefined) return "-";
+  if (score.allOut) return `${score.runs}`;
+  const overs = oversForNRR(score, matchOvers);
+  const wkts = score.wkts === "" || score.wkts === null || score.wkts === undefined ? 0 : score.wkts;
+  if (overs >= matchOvers) return `${score.runs}/${wkts}`;
+  return `${score.runs}/${wkts}(${formatOvers(score.overs)})`;
+}
+
+// winner derivation: higher runs wins; equal runs => tie unless a tie-break winner was chosen
+function getWinnerId(match) {
+  if (!isPlayed(match)) return null;
+  const r1 = Number(match.score1.runs);
+  const r2 = Number(match.score2.runs);
+  if (r1 === r2) return match.tieWinnerId || null;
+  return r1 > r2 ? match.team1Id : match.team2Id;
+}
+function isTied(match) {
+  return isPlayed(match) && Number(match.score1.runs) === Number(match.score2.runs) && !match.tieWinnerId;
+}
+
+// margin text e.g. "won by 69 runs" / "won by 6 wickets"
+function marginText(match, teams, matchOvers) {
+  if (!isPlayed(match)) return null;
+  const winnerId = getWinnerId(match);
+  if (!winnerId) return "Match tied";
+  const firstId = match.battingFirstId || match.team1Id;
+  const secondId = firstId === match.team1Id ? match.team2Id : match.team1Id;
+  const firstScore = firstId === match.team1Id ? match.score1 : match.score2;
+  const secondScore = firstId === match.team1Id ? match.score2 : match.score1;
+  const firstRuns = Number(firstScore.runs);
+  const secondRuns = Number(secondScore.runs);
+  if (winnerId === firstId) {
+    const margin = firstRuns - secondRuns;
+    return `${teamName(teams, winnerId)} won by ${margin} run${margin === 1 ? "" : "s"}`;
+  }
+  const secondWkts = secondScore.allOut ? 10 : Number(secondScore.wkts) || 0;
+  const wicketsRemaining = Math.max(0, 10 - secondWkts);
+  return `${teamName(teams, winnerId)} won by ${wicketsRemaining} wicket${wicketsRemaining === 1 ? "" : "s"}`;
+}
+
+// the compact one-line notation the user actually writes by hand:
+// "AS# 175/5 v GAW 106  Head 58(45)" — batting-first team shown first, "#" on the winner
+function resultLine(match, teams, matchOvers) {
+  if (!isPlayed(match)) return null;
+  const firstId = match.battingFirstId || match.team1Id;
+  const secondId = firstId === match.team1Id ? match.team2Id : match.team1Id;
+  const firstScore = firstId === match.team1Id ? match.score1 : match.score2;
+  const secondScore = firstId === match.team1Id ? match.score2 : match.score1;
+  const winnerId = getWinnerId(match);
+  const tag = id => id && id === winnerId ? "#" : "";
+  const line = `${teamName(teams, firstId)}${tag(firstId)} ${formatScore(firstScore, matchOvers)} v ${teamName(teams, secondId)}${tag(secondId)} ${formatScore(secondScore, matchOvers)}`;
+  return match.mom ? `${line}  ${match.mom}` : line;
+}
+function computeStandings(teamIds, matches, matchOvers) {
+  const stats = {};
+  teamIds.forEach(id => {
+    stats[id] = {
+      id,
+      played: 0,
+      won: 0,
+      lost: 0,
+      tied: 0,
+      points: 0,
+      runsFor: 0,
+      oversFor: 0,
+      runsAgainst: 0,
+      oversAgainst: 0
+    };
+  });
+  matches.forEach(m => {
+    if (!isPlayed(m)) return;
+    const s1 = stats[m.team1Id];
+    const s2 = stats[m.team2Id];
+    if (!s1 || !s2) return;
+    s1.played++;
+    s2.played++;
+    const o1 = oversForNRR(m.score1, matchOvers);
+    const o2 = oversForNRR(m.score2, matchOvers);
+    s1.runsFor += Number(m.score1.runs) || 0;
+    s1.oversFor += o1;
+    s1.runsAgainst += Number(m.score2.runs) || 0;
+    s1.oversAgainst += o2;
+    s2.runsFor += Number(m.score2.runs) || 0;
+    s2.oversFor += o2;
+    s2.runsAgainst += Number(m.score1.runs) || 0;
+    s2.oversAgainst += o1;
+    const winnerId = getWinnerId(m);
+    if (!winnerId) {
+      s1.tied++;
+      s2.tied++;
+      s1.points += 1;
+      s2.points += 1;
+    } else if (winnerId === m.team1Id) {
+      s1.won++;
+      s2.lost++;
+      s1.points += 2;
+    } else {
+      s2.won++;
+      s1.lost++;
+      s2.points += 2;
+    }
+  });
+  const rows = Object.values(stats).map(s => {
+    const forRate = s.oversFor > 0 ? s.runsFor / s.oversFor : 0;
+    const againstRate = s.oversAgainst > 0 ? s.runsAgainst / s.oversAgainst : 0;
+    return {
+      ...s,
+      nrr: forRate - againstRate
+    };
+  });
+  rows.sort((a, b) => b.points - a.points || b.nrr - a.nrr);
+  return rows;
+}
+function allSeasonMatches(season) {
+  const list = [];
+  (season.groups || []).forEach(g => list.push(...g.matches));
+  (season.knockoutRounds || []).forEach(r => list.push(...r.matches));
+  return list;
+}
+
+// champion / runner-up / semi-finalists for a season, derived from the (user-named,
+// user-ordered) knockout rounds — last round is the Final, one before it the Semis
+function getChampionInfo(season) {
+  const rounds = season.knockoutRounds || [];
+  if (!rounds.length) return null;
+  const finalRound = rounds[rounds.length - 1];
+  const finalMatch = finalRound.matches[0];
+  if (!finalMatch || !isPlayed(finalMatch)) return null;
+  const winnerId = getWinnerId(finalMatch);
+  if (!winnerId) return null;
+  const runnerUpId = winnerId === finalMatch.team1Id ? finalMatch.team2Id : finalMatch.team1Id;
+  const semiRound = rounds.length >= 2 ? rounds[rounds.length - 2] : null;
+  const semiFinalists = semiRound ? semiRound.matches.map(m => {
+    const w = getWinnerId(m);
+    if (!w) return null;
+    return w === m.team1Id ? m.team2Id : m.team1Id;
+  }).filter(Boolean) : [];
+  return {
+    championId: winnerId,
+    runnerUpId,
+    semiFinalists,
+    finalRoundName: finalRound.name
+  };
+}
+
+// the furthest stage a team reached in a season's knockouts (rounds are plain,
+// user-named, in order — no bracket math needed)
+function getStageReached(season, teamId) {
+  const rounds = season.knockoutRounds || [];
+  for (let i = rounds.length - 1; i >= 0; i--) {
+    const round = rounds[i];
+    const match = round.matches.find(m => m.team1Id === teamId || m.team2Id === teamId);
+    if (!match) continue;
+    const isFinal = i === rounds.length - 1;
+    if (!isPlayed(match)) return `In ${round.name}`;
+    const winnerId = getWinnerId(match);
+    if (!winnerId) return `In ${round.name} (tied)`;
+    if (winnerId === teamId) return isFinal ? "Winner" : `Reached ${round.name}`;
+    return isFinal ? "Runner-up" : round.name;
+  }
+  const inGroup = (season.groups || []).some(g => g.teamIds.includes(teamId));
+  return inGroup ? "Group stage" : "Did not play";
+}
+function getTeamRecordInSeason(season, teamId) {
+  const inSeason = (season.groups || []).some(g => g.teamIds.includes(teamId)) || allSeasonMatches(season).some(m => m.team1Id === teamId || m.team2Id === teamId);
+  if (!inSeason) return null;
+  let played = 0,
+    won = 0,
+    lost = 0,
+    tied = 0;
+  allSeasonMatches(season).forEach(m => {
+    if (m.team1Id !== teamId && m.team2Id !== teamId) return;
+    if (!isPlayed(m)) return;
+    played++;
+    const w = getWinnerId(m);
+    if (!w) tied++;else if (w === teamId) won++;else lost++;
+  });
+  return {
+    seasonName: season.name,
+    played,
+    won,
+    lost,
+    tied,
+    stage: getStageReached(season, teamId)
+  };
+}
+
+// overall record + opponent-wise head-to-head, across every saved season
+function getOverallAndH2H(seasons, teamId) {
+  let played = 0,
+    won = 0,
+    lost = 0,
+    tied = 0;
+  const h2h = {};
+  seasons.forEach(season => {
+    allSeasonMatches(season).forEach(m => {
+      if (m.team1Id !== teamId && m.team2Id !== teamId) return;
+      if (!isPlayed(m)) return;
+      const oppId = m.team1Id === teamId ? m.team2Id : m.team1Id;
+      if (!oppId) return;
+      if (!h2h[oppId]) h2h[oppId] = {
+        id: oppId,
+        played: 0,
+        won: 0,
+        lost: 0,
+        tied: 0
+      };
+      played++;
+      h2h[oppId].played++;
+      const w = getWinnerId(m);
+      if (!w) {
+        tied++;
+        h2h[oppId].tied++;
+      } else if (w === teamId) {
+        won++;
+        h2h[oppId].won++;
+      } else {
+        lost++;
+        h2h[oppId].lost++;
+      }
+    });
+  });
+  const headToHead = Object.values(h2h).sort((a, b) => b.played - a.played || b.won - a.won);
+  return {
+    played,
+    won,
+    lost,
+    tied,
+    headToHead
+  };
+}
+function generateRoundRobin(teamIds) {
+  const matches = [];
+  for (let i = 0; i < teamIds.length; i++) {
+    for (let j = i + 1; j < teamIds.length; j++) {
+      matches.push(blankMatch(teamIds[i], teamIds[j]));
+    }
+  }
+  return matches;
+}
+function reorder(list, fromIdx, toIdx) {
+  const arr = [...list];
+  if (fromIdx < 0 || fromIdx >= arr.length || toIdx < 0 || toIdx >= arr.length) return arr;
+  const [moved] = arr.splice(fromIdx, 1);
+  arr.splice(toIdx, 0, moved);
+  return arr;
+}
+
+// ============================================================
+// Pitchside — small shared UI components
+// ============================================================
+const {
+  useState,
+  useEffect
+} = React;
+function TeamBadge({
+  team,
+  size = 12
+}) {
+  if (!team) return /*#__PURE__*/React.createElement("span", {
+    className: "text-[#16213E]/40 italic"
+  }, "TBD");
+  return /*#__PURE__*/React.createElement("span", {
+    className: "inline-flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-flex",
+      width: size,
+      height: size,
+      borderRadius: 3,
+      overflow: "hidden",
+      flexShrink: 0,
+      border: "1px solid rgba(0,0,0,0.15)"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      background: team.color1
+    }
+  }), team.color2 && /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      background: team.color2
+    }
+  })), team.name);
+}
+function NumberInput({
+  value,
+  onChange,
+  min = 0,
+  className
+}) {
+  const [local, setLocal] = useState(String(value));
+  useEffect(() => {
+    setLocal(String(value));
+  }, [value]);
+  return /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    value: local,
+    onChange: e => {
+      const v = e.target.value;
+      setLocal(v);
+      if (v !== "" && !isNaN(Number(v))) onChange(Number(v));
+    },
+    onBlur: () => {
+      let n = Number(local);
+      if (local === "" || isNaN(n)) n = min;
+      n = Math.max(min, n);
+      setLocal(String(n));
+      onChange(n);
+    },
+    className: className
+  });
+}
+
+// team creation / edit form — a required primary color, optional secondary
+function TeamForm({
+  initial,
+  onSave,
+  onCancel
+}) {
+  const [name, setName] = useState(initial?.name || "");
+  const [color1, setColor1] = useState(initial?.color1 || PALETTE[Math.floor(Math.random() * PALETTE.length)]);
+  const [useColor2, setUseColor2] = useState(!!initial?.color2);
+  const [color2, setColor2] = useState(initial?.color2 || "#E8A33D");
+  function save() {
+    if (!name.trim()) return;
+    onSave({
+      id: initial?.id || uid("team"),
+      name: name.trim(),
+      color1,
+      color2: useColor2 ? color2 : null
+    });
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg p-4 space-y-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#16213E]/60 block mb-1"
+  }, "Team name"), /*#__PURE__*/React.createElement("input", {
+    value: name,
+    onChange: e => setName(e.target.value),
+    onKeyDown: e => e.key === "Enter" && save(),
+    placeholder: "e.g. Mumbai Indians",
+    className: "w-full border border-[#1B4332]/30 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-end gap-4 flex-wrap"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#16213E]/60 block mb-1"
+  }, "Primary color"), /*#__PURE__*/React.createElement("input", {
+    type: "color",
+    value: color1,
+    onChange: e => setColor1(e.target.value),
+    className: "w-12 h-9 rounded border border-[#1B4332]/30"
+  })), /*#__PURE__*/React.createElement("label", {
+    className: "flex items-center gap-2 text-xs text-[#16213E]/70 pb-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: useColor2,
+    onChange: e => setUseColor2(e.target.checked),
+    className: "accent-[#1B4332]"
+  }), "Add second color"), useColor2 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#16213E]/60 block mb-1"
+  }, "Secondary color"), /*#__PURE__*/React.createElement("input", {
+    type: "color",
+    value: color2,
+    onChange: e => setColor2(e.target.value),
+    className: "w-12 h-9 rounded border border-[#1B4332]/30"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: save,
+    disabled: !name.trim(),
+    className: "bg-[#1B4332] disabled:opacity-40 text-[#F5EFDC] px-4 py-2 rounded text-sm font-semibold hover:brightness-125 transition"
+  }, initial ? "Save changes" : "Add team"), onCancel && /*#__PURE__*/React.createElement("button", {
+    onClick: onCancel,
+    className: "text-[#16213E]/60 text-sm px-4 py-2 rounded border border-[#1B4332]/20"
+  }, "Cancel")));
+}
+
+// per-side score entry: runs always, wkts+overs hidden entirely once "All out" is ticked
+function ScoreFields({
+  label,
+  score,
+  onChange,
+  matchOvers
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[#E8A33D] text-xs uppercase tracking-wide font-semibold"
+  }, label), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 items-end flex-wrap"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-20"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#F5EFDC]/60 block"
+  }, "Runs"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    value: score.runs,
+    onChange: e => onChange({
+      ...score,
+      runs: e.target.value
+    }),
+    className: "w-full bg-[#F5EFDC] border border-[#1B4332]/30 rounded px-2 py-1 text-sm font-mono text-[#16213E] focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  })), !score.allOut && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "w-16"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#F5EFDC]/60 block"
+  }, "Wkts"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: 0,
+    max: 9,
+    value: score.wkts,
+    onChange: e => onChange({
+      ...score,
+      wkts: e.target.value
+    }),
+    className: "w-full bg-[#F5EFDC] border border-[#1B4332]/30 rounded px-2 py-1 text-sm font-mono text-[#16213E] focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "w-24"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#F5EFDC]/60 block"
+  }, "Overs"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.1",
+    min: 0,
+    placeholder: String(matchOvers),
+    value: score.overs,
+    onChange: e => onChange({
+      ...score,
+      overs: e.target.value
+    }),
+    className: "w-full bg-[#F5EFDC] border border-[#1B4332]/30 rounded px-2 py-1 text-sm font-mono text-[#16213E] focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  }))), /*#__PURE__*/React.createElement("label", {
+    className: "flex items-center gap-1.5 text-[11px] text-[#F5EFDC]/70 pb-1.5"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: score.allOut,
+    onChange: e => onChange({
+      ...score,
+      allOut: e.target.checked,
+      wkts: "",
+      overs: ""
+    }),
+    className: "accent-[#E8A33D]"
+  }), "All out")));
+}
+function StandingsTable({
+  teams,
+  standings
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg overflow-hidden overflow-x-auto"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full text-sm"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    className: "bg-[#1B4332] text-[#E8A33D] text-left"
+  }, /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal"
+  }, "#"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal"
+  }, "Team"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "P"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "W"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "L"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "T"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "Pts"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-right"
+  }, "NRR"))), /*#__PURE__*/React.createElement("tbody", null, standings.map((s, i) => /*#__PURE__*/React.createElement("tr", {
+    key: s.id,
+    className: "border-b border-[#1B4332]/10"
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 font-mono text-[#16213E]/60"
+  }, i + 1), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-[#16213E] font-medium"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(teams, s.id)
+  })), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono"
+  }, s.played), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono"
+  }, s.won), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono"
+  }, s.lost), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono"
+  }, s.tied), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono font-bold"
+  }, s.points), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-right font-mono"
+  }, s.nrr >= 0 ? "+" : "", s.nrr.toFixed(3)))))));
+}
+
+// ============================================================
+// Pitchside — match entry card
+// ============================================================
+function MatchCard({
+  match,
+  teams,
+  matchOvers,
+  onChange,
+  onRemove,
+  dragHandleProps
+}) {
+  const [editing, setEditing] = useState(!isPlayed(match));
+  const t1 = getTeam(teams, match.team1Id);
+  const t2 = getTeam(teams, match.team2Id);
+  const played = isPlayed(match);
+  const line = resultLine(match, teams, matchOvers);
+  const margin = played ? marginText(match, teams, matchOvers) : null;
+  const scoresEqual = match.score1.runs !== "" && match.score2.runs !== "" && Number(match.score1.runs) === Number(match.score2.runs);
+  function patch(p) {
+    onChange({
+      ...match,
+      ...p
+    });
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg overflow-hidden shadow-sm border border-[#1B4332]/15"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#1B4332] px-3 py-2 flex items-center gap-2"
+  }, dragHandleProps && /*#__PURE__*/React.createElement("span", {
+    ...dragHandleProps,
+    title: "Drag to reorder",
+    className: "cursor-move select-none text-[#F5EFDC]/40 hover:text-[#E8A33D] text-base leading-none shrink-0"
+  }, "⠿"), /*#__PURE__*/React.createElement("span", {
+    className: "flex-1 text-[#F5EFDC] text-sm font-mono truncate"
+  }, t1 && t2 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
+    className: "mr-1"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "radio",
+    className: "accent-[#E8A33D] mr-1",
+    checked: match.battingFirstId === match.team1Id,
+    onChange: () => patch({
+      battingFirstId: match.team1Id
+    })
+  }), t1.name), "v", /*#__PURE__*/React.createElement("label", {
+    className: "ml-1"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "radio",
+    className: "accent-[#E8A33D] mr-1",
+    checked: match.battingFirstId === match.team2Id,
+    onChange: () => patch({
+      battingFirstId: match.team2Id
+    })
+  }), t2.name), /*#__PURE__*/React.createElement("span", {
+    className: "text-[#F5EFDC]/40 ml-1"
+  }, "(tick who batted first)")) : /*#__PURE__*/React.createElement("span", {
+    className: "text-[#F5EFDC]/40 italic"
+  }, "Pick both teams")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setEditing(v => !v),
+    className: "text-[#F5EFDC] text-xs underline decoration-[#E8A33D] underline-offset-2 shrink-0"
+  }, played ? "Edit" : "Enter"), onRemove && /*#__PURE__*/React.createElement("button", {
+    onClick: onRemove,
+    className: "text-[#F5EFDC]/50 hover:text-[#C1443C] text-xs shrink-0",
+    title: "Remove match"
+  }, "✕")), /*#__PURE__*/React.createElement("div", {
+    className: "p-4"
+  }, played && !editing && /*#__PURE__*/React.createElement("div", {
+    className: "font-mono text-sm text-[#16213E]"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-base"
+  }, line), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 pt-1 border-t border-[#1B4332]/15 text-[#1B4332] font-semibold font-sans text-sm"
+  }, margin)), editing && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3 bg-[#0F2C22] -m-4 p-4 rounded-b-lg mt-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
+  }, /*#__PURE__*/React.createElement(ScoreFields, {
+    label: t1?.name || "Team 1",
+    score: match.score1,
+    onChange: s => patch({
+      score1: s
+    }),
+    matchOvers: matchOvers
+  }), /*#__PURE__*/React.createElement(ScoreFields, {
+    label: t2?.name || "Team 2",
+    score: match.score2,
+    onChange: s => patch({
+      score2: s
+    }),
+    matchOvers: matchOvers
+  })), scoresEqual && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[#F5EFDC]/70 text-xs mb-1"
+  }, "Scores level — tie-breaker winner (optional, e.g. Super Over):"), /*#__PURE__*/React.createElement("select", {
+    value: match.tieWinnerId || "",
+    onChange: e => patch({
+      tieWinnerId: e.target.value || null
+    }),
+    className: "bg-[#F5EFDC] border border-[#1B4332]/30 rounded px-2 py-1 text-sm text-[#16213E]"
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Tie stands"), t1 && /*#__PURE__*/React.createElement("option", {
+    value: t1.id
+  }, t1.name), t2 && /*#__PURE__*/React.createElement("option", {
+    value: t2.id
+  }, t2.name))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#F5EFDC]/60 block mb-1"
+  }, "Man of the Match (one line)"), /*#__PURE__*/React.createElement("input", {
+    value: match.mom,
+    onChange: e => patch({
+      mom: e.target.value
+    }),
+    placeholder: "e.g. Head 58(45)",
+    className: "w-full bg-[#F5EFDC] border border-[#1B4332]/30 rounded px-2 py-1.5 text-sm font-mono text-[#16213E] focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setEditing(false),
+    className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-1.5 rounded hover:brightness-110 transition"
+  }, "Done"))));
+}
+
+// team-picker row for adding a fresh manual fixture
+function AddMatchRow({
+  teamPool,
+  teams,
+  onAdd
+}) {
+  const [t1, setT1] = useState("");
+  const [t2, setT2] = useState("");
+  return /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 bg-[#1B4332]/5 rounded p-2"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: t1,
+    onChange: e => setT1(e.target.value),
+    className: "flex-1 text-xs border border-[#1B4332]/20 rounded px-2 py-1.5"
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Team A…"), teamPool.map(id => /*#__PURE__*/React.createElement("option", {
+    key: id,
+    value: id,
+    disabled: id === t2
+  }, teamName(teams, id)))), /*#__PURE__*/React.createElement("span", {
+    className: "text-[#1B4332]/40 text-xs"
+  }, "vs"), /*#__PURE__*/React.createElement("select", {
+    value: t2,
+    onChange: e => setT2(e.target.value),
+    className: "flex-1 text-xs border border-[#1B4332]/20 rounded px-2 py-1.5"
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Team B…"), teamPool.map(id => /*#__PURE__*/React.createElement("option", {
+    key: id,
+    value: id,
+    disabled: id === t1
+  }, teamName(teams, id)))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      if (t1 && t2 && t1 !== t2) {
+        onAdd(t1, t2);
+        setT1("");
+        setT2("");
+      }
+    },
+    disabled: !t1 || !t2 || t1 === t2,
+    className: "bg-[#1B4332] disabled:opacity-40 text-[#F5EFDC] text-xs font-semibold px-3 py-1.5 rounded shrink-0"
+  }, "+ Add"));
+}
+
+// a draggable list of MatchCards, sharing one drag-state
+function MatchList({
+  matches,
+  teams,
+  matchOvers,
+  onUpdate,
+  onRemove,
+  onReorder
+}) {
+  const [dragIdx, setDragIdx] = useState(null);
+  if (!matches.length) {
+    return /*#__PURE__*/React.createElement("p", {
+      className: "text-[#F5EFDC]/50 text-sm italic"
+    }, "No fixtures yet — add one below.");
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, matches.map((m, idx) => /*#__PURE__*/React.createElement("div", {
+    key: m.id,
+    onDragOver: e => e.preventDefault(),
+    onDrop: () => {
+      if (dragIdx !== null && dragIdx !== idx) onReorder(dragIdx, idx);
+      setDragIdx(null);
+    }
+  }, /*#__PURE__*/React.createElement(MatchCard, {
+    match: m,
+    teams: teams,
+    matchOvers: matchOvers,
+    onChange: patched => onUpdate(m.id, patched),
+    onRemove: () => onRemove(m.id),
+    dragHandleProps: {
+      draggable: true,
+      onDragStart: () => setDragIdx(idx),
+      onDragEnd: () => setDragIdx(null)
+    }
+  }))));
+}
+
+// ============================================================
+// Pitchside — group stage & knockout panels
+// ============================================================
+
+function GroupPanel({
+  group,
+  allTeams,
+  matchOvers,
+  onUpdateGroup
+}) {
+  const [addingTeam, setAddingTeam] = useState("");
+  const standings = computeStandings(group.teamIds, group.matches, matchOvers);
+  const availableTeams = allTeams.filter(t => !group.teamIds.includes(t.id));
+  function addTeam() {
+    if (!addingTeam) return;
+    onUpdateGroup({
+      ...group,
+      teamIds: [...group.teamIds, addingTeam]
+    });
+    setAddingTeam("");
+  }
+  function removeTeam(id) {
+    onUpdateGroup({
+      ...group,
+      teamIds: group.teamIds.filter(t => t !== id),
+      matches: group.matches.filter(m => m.team1Id !== id && m.team2Id !== id)
+    });
+  }
+  function generateFixtures() {
+    onUpdateGroup({
+      ...group,
+      matches: generateRoundRobin(group.teamIds)
+    });
+  }
+  function updateMatch(id, patched) {
+    onUpdateGroup({
+      ...group,
+      matches: group.matches.map(m => m.id === id ? patched : m)
+    });
+  }
+  function removeMatch(id) {
+    onUpdateGroup({
+      ...group,
+      matches: group.matches.filter(m => m.id !== id)
+    });
+  }
+  function addManualMatch(t1, t2) {
+    onUpdateGroup({
+      ...group,
+      matches: [...group.matches, blankMatch(t1, t2)]
+    });
+  }
+  function reorderMatches(from, to) {
+    onUpdateGroup({
+      ...group,
+      matches: reorder(group.matches, from, to)
+    });
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-2 mb-2"
+  }, group.teamIds.map(id => /*#__PURE__*/React.createElement("span", {
+    key: id,
+    className: "inline-flex items-center gap-1.5 bg-[#1B4332]/10 rounded-full px-3 py-1 text-sm"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, id),
+    size: 10
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: () => removeTeam(id),
+    className: "text-[#C1443C] text-xs ml-1"
+  }, "✕"))), group.teamIds.length === 0 && /*#__PURE__*/React.createElement("span", {
+    className: "text-[#16213E]/40 text-sm italic"
+  }, "No teams yet")), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: addingTeam,
+    onChange: e => setAddingTeam(e.target.value),
+    className: "flex-1 text-sm border border-[#1B4332]/20 rounded px-2 py-1.5"
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Add a team…"), availableTeams.map(t => /*#__PURE__*/React.createElement("option", {
+    key: t.id,
+    value: t.id
+  }, t.name))), /*#__PURE__*/React.createElement("button", {
+    onClick: addTeam,
+    disabled: !addingTeam,
+    className: "bg-[#1B4332] disabled:opacity-40 text-[#F5EFDC] text-sm font-semibold px-3 py-1.5 rounded"
+  }, "Add"), /*#__PURE__*/React.createElement("button", {
+    onClick: generateFixtures,
+    disabled: group.teamIds.length < 2,
+    className: "bg-[#E8A33D] disabled:opacity-40 text-[#16213E] text-sm font-semibold px-3 py-1.5 rounded whitespace-nowrap"
+  }, "Round-robin fixtures"))), /*#__PURE__*/React.createElement(MatchList, {
+    matches: group.matches,
+    teams: allTeams,
+    matchOvers: matchOvers,
+    onUpdate: updateMatch,
+    onRemove: removeMatch,
+    onReorder: reorderMatches
+  }), /*#__PURE__*/React.createElement(AddMatchRow, {
+    teamPool: group.teamIds,
+    teams: allTeams,
+    onAdd: addManualMatch
+  }), group.teamIds.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[#E8A33D] text-xs uppercase tracking-wide font-semibold mb-2"
+  }, "Points table"), /*#__PURE__*/React.createElement(StandingsTable, {
+    teams: allTeams,
+    standings: standings
+  })));
+}
+function KnockoutPanel({
+  rounds,
+  allTeams,
+  matchOvers,
+  onUpdateRounds,
+  seasonTeamIds
+}) {
+  const [newRoundName, setNewRoundName] = useState("");
+  function addRound() {
+    if (!newRoundName.trim()) return;
+    onUpdateRounds([...rounds, {
+      id: uid("round"),
+      name: newRoundName.trim(),
+      matches: []
+    }]);
+    setNewRoundName("");
+  }
+  function removeRound(id) {
+    onUpdateRounds(rounds.filter(r => r.id !== id));
+  }
+  function updateRound(id, patched) {
+    onUpdateRounds(rounds.map(r => r.id === id ? patched : r));
+  }
+  const pool = seasonTeamIds && seasonTeamIds.length ? seasonTeamIds : allTeams.map(t => t.id);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg p-4 flex gap-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: newRoundName,
+    onChange: e => setNewRoundName(e.target.value),
+    onKeyDown: e => e.key === "Enter" && addRound(),
+    placeholder: "Round name, e.g. Quarters, Semis, The Final",
+    className: "flex-1 border border-[#1B4332]/30 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: addRound,
+    className: "bg-[#1B4332] text-[#F5EFDC] px-4 py-2 rounded text-sm font-semibold"
+  }, "+ Round")), rounds.length === 0 && /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/50 text-sm italic"
+  }, "No knockout rounds yet — add one above (rounds are ordered, the last one is treated as the Final)."), rounds.map((round, ri) => /*#__PURE__*/React.createElement("div", {
+    key: round.id
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between mb-2"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "font-display text-[#E8A33D] text-lg"
+  }, round.name), /*#__PURE__*/React.createElement("button", {
+    onClick: () => removeRound(round.id),
+    className: "text-[#C1443C]/80 text-xs font-semibold"
+  }, "Remove round")), /*#__PURE__*/React.createElement(MatchList, {
+    matches: round.matches,
+    teams: allTeams,
+    matchOvers: matchOvers,
+    onUpdate: (id, patched) => updateRound(round.id, {
+      ...round,
+      matches: round.matches.map(m => m.id === id ? patched : m)
+    }),
+    onRemove: id => updateRound(round.id, {
+      ...round,
+      matches: round.matches.filter(m => m.id !== id)
+    }),
+    onReorder: (from, to) => updateRound(round.id, {
+      ...round,
+      matches: reorder(round.matches, from, to)
+    })
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2"
+  }, /*#__PURE__*/React.createElement(AddMatchRow, {
+    teamPool: pool,
+    teams: allTeams,
+    onAdd: (t1, t2) => updateRound(round.id, {
+      ...round,
+      matches: [...round.matches, blankMatch(t1, t2)]
+    })
+  })))));
+}
+function TournamentResultPanel({
+  season,
+  allTeams
+}) {
+  const info = getChampionInfo(season);
+  if (!info) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "px-5 py-3 border-b border-[#1B4332]/10"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "font-display text-[#1B4332] text-lg"
+  }, "Tournament Result")), /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#E8A33D] p-6 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[#16213E]/70 text-xs uppercase tracking-widest font-semibold"
+  }, "Champion"), /*#__PURE__*/React.createElement("div", {
+    className: "font-display text-3xl text-[#16213E] mt-1"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, info.championId),
+    size: 18
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#1B4332]/10"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[#16213E]/50 text-[10px] uppercase tracking-widest font-semibold"
+  }, "Runner-up"), /*#__PURE__*/React.createElement("div", {
+    className: "font-display text-lg text-[#16213E] mt-1"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, info.runnerUpId),
+    size: 14
+  }))), info.semiFinalists.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "p-4 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[#16213E]/50 text-[10px] uppercase tracking-widest font-semibold"
+  }, "Semi-finalists"), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col items-center gap-1 mt-1"
+  }, info.semiFinalists.map(id => /*#__PURE__*/React.createElement(TeamBadge, {
+    key: id,
+    team: getTeam(allTeams, id),
+    size: 14
+  }))))));
+}
+function OverviewPanel({
+  season,
+  allTeams
+}) {
+  const groupLines = (season.groups || []).flatMap(g => g.matches.filter(isPlayed).map(m => ({
+    groupName: g.name,
+    m
+  })));
+  const koLines = (season.knockoutRounds || []).flatMap(r => r.matches.filter(isPlayed).map(m => ({
+    groupName: r.name,
+    m
+  })));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-5"
+  }, /*#__PURE__*/React.createElement(TournamentResultPanel, {
+    season: season,
+    allTeams: allTeams
+  }), (season.groups || []).map(g => /*#__PURE__*/React.createElement("div", {
+    key: g.id
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "font-display text-[#E8A33D] text-base mb-2"
+  }, g.name), /*#__PURE__*/React.createElement(StandingsTable, {
+    teams: allTeams,
+    standings: computeStandings(g.teamIds, g.matches, season.oversPerMatch)
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 space-y-1 font-mono text-sm text-[#F5EFDC]"
+  }, g.matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
+    key: m.id
+  }, resultLine(m, allTeams, season.oversPerMatch)))))), (season.knockoutRounds || []).map(r => /*#__PURE__*/React.createElement("div", {
+    key: r.id
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "font-display text-[#E8A33D] text-base mb-2"
+  }, r.name), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-1 font-mono text-sm text-[#F5EFDC]"
+  }, r.matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
+    key: m.id
+  }, resultLine(m, allTeams, season.oversPerMatch)))))), groupLines.length === 0 && koLines.length === 0 && /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/60 text-sm italic"
+  }, "Nothing recorded yet — add teams and fixtures to see the summary here."));
+}
+
+// ============================================================
+// Pitchside — team roster & team profile screen
+// ============================================================
+function TeamProfile({
+  team,
+  seasons,
+  allTeams,
+  onBack
+}) {
+  const records = seasons.map(s => getTeamRecordInSeason(s, team.id)).filter(Boolean);
+  const overall = getOverallAndH2H(seasons, team.id);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-display text-2xl text-[#F5EFDC]"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: team,
+    size: 16
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: onBack,
+    className: "text-[#F5EFDC]/60 text-xs underline"
+  }, "‹ All teams")), records.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/50 text-sm italic"
+  }, "This team hasn't played in any saved season yet.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] uppercase tracking-widest text-[#16213E]/50 font-semibold mb-2"
+  }, "Overall record · all seasons"), /*#__PURE__*/React.createElement("div", {
+    className: "text-sm font-mono text-[#16213E]"
+  }, "Played ", overall.played, " · Won ", overall.won, " · Lost ", overall.lost, overall.tied ? ` · Tied ${overall.tied}` : "")), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-2"
+  }, records.map((rec, i) => /*#__PURE__*/React.createElement("li", {
+    key: i,
+    className: "bg-[#F5EFDC] rounded-lg p-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-display text-[#1B4332] text-base"
+  }, rec.seasonName), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-mono text-[#16213E]/70 mt-1"
+  }, "Played ", rec.played, " · Won ", rec.won, " · Lost ", rec.lost, rec.tied ? ` · Tied ${rec.tied}` : ""), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] uppercase tracking-wide text-[#1B4332]/60 font-semibold mt-1.5"
+  }, "Highest stage: ", rec.stage)))), overall.headToHead.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "px-4 py-3 border-b border-[#1B4332]/10 text-[10px] uppercase tracking-widest text-[#16213E]/50 font-semibold"
+  }, "Head-to-head"), /*#__PURE__*/React.createElement("ul", null, overall.headToHead.map(h => /*#__PURE__*/React.createElement("li", {
+    key: h.id,
+    className: "flex items-center justify-between px-4 py-2 border-b border-[#1B4332]/10 last:border-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-[#16213E]"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, h.id),
+    size: 10
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-mono text-[#16213E]/70"
+  }, "P", h.played, " · W", h.won, " · L", h.lost, h.tied ? ` · T${h.tied}` : "")))))));
+}
+function TeamManagerScreen({
+  teams,
+  seasons,
+  onAddTeam,
+  onUpdateTeam,
+  onDeleteTeam,
+  onClose
+}) {
+  const [adding, setAdding] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [viewingId, setViewingId] = useState(null);
+  const viewingTeam = teams.find(t => t.id === viewingId);
+  const editingTeam = teams.find(t => t.id === editingId);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "min-h-screen bg-[#0F2C22]",
+    style: {
+      fontFamily: "'Inter', sans-serif"
+    }
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "font-display text-3xl text-[#F5EFDC] tracking-wide"
+  }, "Team Roster")), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
+  }, "‹ Seasons")), /*#__PURE__*/React.createElement("main", {
+    className: "max-w-2xl mx-auto px-4 py-6 space-y-4"
+  }, viewingTeam ? /*#__PURE__*/React.createElement(TeamProfile, {
+    team: viewingTeam,
+    seasons: seasons,
+    allTeams: teams,
+    onBack: () => setViewingId(null)
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, editingTeam ? /*#__PURE__*/React.createElement(TeamForm, {
+    initial: editingTeam,
+    onSave: t => {
+      onUpdateTeam(t);
+      setEditingId(null);
+    },
+    onCancel: () => setEditingId(null)
+  }) : adding ? /*#__PURE__*/React.createElement(TeamForm, {
+    onSave: t => {
+      onAddTeam(t);
+      setAdding(false);
+    },
+    onCancel: () => setAdding(false)
+  }) : /*#__PURE__*/React.createElement("button", {
+    onClick: () => setAdding(true),
+    className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded"
+  }, "+ Add team"), teams.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/50 text-sm italic px-1"
+  }, "No teams yet — add your franchises above.") : /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-2"
+  }, teams.map(t => /*#__PURE__*/React.createElement("li", {
+    key: t.id,
+    className: "bg-[#F5EFDC] rounded-lg p-3 flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: t
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3 shrink-0"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setViewingId(t.id),
+    className: "text-[#1B4332] text-xs font-semibold underline"
+  }, "Performance"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setEditingId(t.id),
+    className: "text-[#1B4332] text-xs font-semibold underline"
+  }, "Edit"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => onDeleteTeam(t.id),
+    className: "text-[#C1443C] text-xs font-semibold"
+  }, "Delete"))))))));
+}
+
+// ============================================================
+// Pitchside — season (tournament) editor
+// ============================================================
+function SeasonEditor({
+  season,
+  teams,
+  allSeasons,
+  onUpdateSeason,
+  onClose
+}) {
+  const [tab, setTab] = useState("groups");
+  const [newGroupName, setNewGroupName] = useState("");
+  const [selectedGroupIdx, setSelectedGroupIdx] = useState(0);
+  const seasonTeamIds = Array.from(new Set((season.groups || []).flatMap(g => g.teamIds)));
+  function addGroup() {
+    if (!newGroupName.trim()) return;
+    onUpdateSeason({
+      ...season,
+      groups: [...(season.groups || []), {
+        id: uid("grp"),
+        name: newGroupName.trim(),
+        teamIds: [],
+        matches: []
+      }]
+    });
+    setNewGroupName("");
+  }
+  function updateGroup(updated) {
+    onUpdateSeason({
+      ...season,
+      groups: season.groups.map(g => g.id === updated.id ? updated : g)
+    });
+  }
+  function removeGroup(id) {
+    onUpdateSeason({
+      ...season,
+      groups: season.groups.filter(g => g.id !== id)
+    });
+    setSelectedGroupIdx(0);
+  }
+  function updateKnockoutRounds(rounds) {
+    onUpdateSeason({
+      ...season,
+      knockoutRounds: rounds
+    });
+  }
+  const groups = season.groups || [];
+  const selectedGroup = groups[Math.min(selectedGroupIdx, Math.max(0, groups.length - 1))];
+  const tabs = [{
+    key: "groups",
+    label: "Groups"
+  }, {
+    key: "knockouts",
+    label: "Knockouts"
+  }, {
+    key: "overview",
+    label: "Overview"
+  }];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "min-h-screen bg-[#0F2C22]",
+    style: {
+      fontFamily: "'Inter', sans-serif"
+    }
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "font-display text-2xl text-[#F5EFDC] truncate"
+  }, season.name), /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/60 text-xs mt-0.5"
+  }, season.oversPerMatch, "-over matches")), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
+  }, "‹ Seasons")), /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#16213E] px-2 flex overflow-x-auto"
+  }, tabs.map(t => /*#__PURE__*/React.createElement("button", {
+    key: t.key,
+    onClick: () => setTab(t.key),
+    className: `px-5 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition ${tab === t.key ? "text-[#E8A33D] border-[#E8A33D]" : "text-[#F5EFDC]/50 border-transparent"}`
+  }, t.label))), /*#__PURE__*/React.createElement("main", {
+    className: "max-w-4xl mx-auto px-4 py-6 space-y-4"
+  }, tab === "groups" && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg p-4 flex gap-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: newGroupName,
+    onChange: e => setNewGroupName(e.target.value),
+    onKeyDown: e => e.key === "Enter" && addGroup(),
+    placeholder: "Group name, e.g. A",
+    className: "flex-1 border border-[#1B4332]/30 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: addGroup,
+    className: "bg-[#1B4332] text-[#F5EFDC] px-4 py-2 rounded text-sm font-semibold"
+  }, "+ Group")), groups.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/60 text-sm italic"
+  }, "No groups yet — add one above.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 flex-wrap items-center"
+  }, groups.map((g, i) => /*#__PURE__*/React.createElement("button", {
+    key: g.id,
+    onClick: () => setSelectedGroupIdx(i),
+    className: `px-4 py-1.5 rounded-full text-sm font-semibold transition ${selectedGroupIdx === i ? "bg-[#E8A33D] text-[#16213E]" : "bg-[#16213E] text-[#F5EFDC]/60"}`
+  }, g.name)), selectedGroup && /*#__PURE__*/React.createElement("button", {
+    onClick: () => removeGroup(selectedGroup.id),
+    className: "text-[#C1443C]/80 text-xs font-semibold ml-2"
+  }, "Remove ", selectedGroup.name)), selectedGroup && /*#__PURE__*/React.createElement(GroupPanel, {
+    group: selectedGroup,
+    allTeams: teams,
+    matchOvers: season.oversPerMatch,
+    onUpdateGroup: updateGroup
+  }))), tab === "knockouts" && /*#__PURE__*/React.createElement(KnockoutPanel, {
+    rounds: season.knockoutRounds || [],
+    allTeams: teams,
+    matchOvers: season.oversPerMatch,
+    onUpdateRounds: updateKnockoutRounds,
+    seasonTeamIds: seasonTeamIds
+  }), tab === "overview" && /*#__PURE__*/React.createElement(OverviewPanel, {
+    season: season,
+    allTeams: teams
+  })));
+}
+
+// ============================================================
+// Pitchside — root app
+// ============================================================
+const STORAGE_KEY = "pitchside_v2";
+function loadState() {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {/* ignore corrupt storage */}
+  return {
+    teams: [],
+    seasons: []
+  };
+}
+function blankSeason(id, name, oversPerMatch) {
+  return {
+    id,
+    name,
+    oversPerMatch,
+    groups: [],
+    knockoutRounds: []
+  };
+}
+function App() {
+  const [state, setState] = useState(loadState);
+  const [screen, setScreen] = useState("home"); // "home" | "teams" | "season"
+  const [activeSeasonId, setActiveSeasonId] = useState(null);
+  const [newSeasonName, setNewSeasonName] = useState("");
+  const [newSeasonOvers, setNewSeasonOvers] = useState(20);
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state]);
+  const fontStyle = /*#__PURE__*/React.createElement("style", null, `
+      @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+      .font-display { font-family: 'Oswald', sans-serif; }
+      .font-mono { font-family: 'JetBrains Mono', monospace; }
+    `);
+  function addTeam(t) {
+    setState(s => ({
+      ...s,
+      teams: [...s.teams, t]
+    }));
+  }
+  function updateTeam(t) {
+    setState(s => ({
+      ...s,
+      teams: s.teams.map(x => x.id === t.id ? t : x)
+    }));
+  }
+  function deleteTeam(id) {
+    if (!window.confirm("Delete this team? It will be removed from every season and match.")) return;
+    setState(s => ({
+      ...s,
+      teams: s.teams.filter(t => t.id !== id)
+    }));
+  }
+  function createSeason() {
+    if (!newSeasonName.trim()) return;
+    const season = blankSeason(uid("season"), newSeasonName.trim(), Number(newSeasonOvers) || 20);
+    setState(s => ({
+      ...s,
+      seasons: [...s.seasons, season]
+    }));
+    setNewSeasonName("");
+    setActiveSeasonId(season.id);
+    setScreen("season");
+  }
+  function deleteSeason(id) {
+    if (!window.confirm("Delete this season and all its data?")) return;
+    setState(s => ({
+      ...s,
+      seasons: s.seasons.filter(x => x.id !== id)
+    }));
+  }
+  function updateSeason(updated) {
+    setState(s => ({
+      ...s,
+      seasons: s.seasons.map(x => x.id === updated.id ? updated : x)
+    }));
+  }
+  if (screen === "teams") {
+    return /*#__PURE__*/React.createElement(React.Fragment, null, fontStyle, /*#__PURE__*/React.createElement(TeamManagerScreen, {
+      teams: state.teams,
+      seasons: state.seasons,
+      onAddTeam: addTeam,
+      onUpdateTeam: updateTeam,
+      onDeleteTeam: deleteTeam,
+      onClose: () => setScreen("home")
+    }));
+  }
+  if (screen === "season") {
+    const season = state.seasons.find(s => s.id === activeSeasonId);
+    if (!season) {
+      setScreen("home");
+      return null;
+    }
+    return /*#__PURE__*/React.createElement(React.Fragment, null, fontStyle, /*#__PURE__*/React.createElement(SeasonEditor, {
+      season: season,
+      teams: state.teams,
+      allSeasons: state.seasons,
+      onUpdateSeason: updateSeason,
+      onClose: () => setScreen("home")
+    }));
+  }
+
+  // ---------- HOME ----------
+  return /*#__PURE__*/React.createElement("div", {
+    className: "min-h-screen bg-[#0F2C22]",
+    style: {
+      fontFamily: "'Inter', sans-serif"
+    }
+  }, fontStyle, /*#__PURE__*/React.createElement("header", {
+    className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "font-display text-3xl text-[#F5EFDC] tracking-wide"
+  }, "PITCH", /*#__PURE__*/React.createElement("span", {
+    className: "text-[#E8A33D]"
+  }, "SIDE")), /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/60 text-sm mt-0.5"
+  }, "Your seasons")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setScreen("teams"),
+    className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
+  }, "Manage Teams")), /*#__PURE__*/React.createElement("main", {
+    className: "max-w-2xl mx-auto px-4 py-6 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg p-4 flex flex-wrap gap-2 items-end"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 min-w-[160px]"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#16213E]/60 block"
+  }, "Season name"), /*#__PURE__*/React.createElement("input", {
+    value: newSeasonName,
+    onChange: e => setNewSeasonName(e.target.value),
+    onKeyDown: e => e.key === "Enter" && createSeason(),
+    placeholder: "e.g. Ssn 6",
+    className: "w-full border border-[#1B4332]/30 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#16213E]/60 block"
+  }, "Overs/match"), /*#__PURE__*/React.createElement(NumberInput, {
+    value: newSeasonOvers,
+    onChange: setNewSeasonOvers,
+    min: 1,
+    className: "w-24 border border-[#1B4332]/30 rounded px-2 py-2 text-sm font-mono"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: createSeason,
+    className: "bg-[#E8A33D] text-[#16213E] font-semibold px-4 py-2 rounded text-sm"
+  }, "Create")), state.seasons.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/50 text-sm italic px-1"
+  }, "No seasons yet — create one above to get started.") : /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-3"
+  }, state.seasons.map(s => {
+    const info = getChampionInfo(s);
+    return /*#__PURE__*/React.createElement("li", {
+      key: s.id,
+      className: "bg-[#F5EFDC] rounded-lg p-4 flex items-center justify-between gap-3"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "min-w-0"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "font-display text-lg text-[#16213E] truncate"
+    }, s.name), /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-[#16213E]/60 mt-0.5"
+    }, (s.groups || []).length, " groups · ", info ? `Champion: ${teamName(state.teams, info.championId)}` : "In progress")), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2 shrink-0"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => {
+        setActiveSeasonId(s.id);
+        setScreen("season");
+      },
+      className: "bg-[#1B4332] text-[#F5EFDC] text-xs font-semibold px-3 py-1.5 rounded"
+    }, "Open"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => deleteSeason(s.id),
+      className: "text-[#C1443C] text-xs font-semibold px-2"
+    }, "Delete")));
+  }))));
+}
+try {
+  ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(App, null));
+} catch (e) {
+  document.getElementById("root").innerHTML = '<div id="boot-status">App failed to start: ' + e.message + '</div>';
+}
+</script>
+</body>
+</html>
