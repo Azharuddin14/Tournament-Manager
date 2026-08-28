@@ -6,7 +6,7 @@
 <title>Pitchside — Tournament Manager</title>
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#1B4332" />
-<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -17,14 +17,12 @@
 </head>
 <body>
 <div id="root"><div id="boot-status">Loading Pitchside…</div></div>
-
 <script>
   window.addEventListener("error", function (e) {
     var el = document.getElementById("boot-status");
     if (el) el.innerText = "Something failed to load (" + e.message + "). Check your connection and reload.";
   }, true);
 </script>
-
 <script>
 // ============================================================
 // Pitchside — data model helpers
@@ -206,6 +204,7 @@ function computeStandings(teamIds, matches, matchOvers) {
 }
 function allSeasonMatches(season) {
   const list = [];
+  (season.preQualGroups || []).forEach(g => list.push(...g.matches));
   (season.groups || []).forEach(g => list.push(...g.matches));
   (season.knockoutRounds || []).forEach(r => list.push(...r.matches));
   return list;
@@ -251,11 +250,11 @@ function getStageReached(season, teamId) {
     if (winnerId === teamId) return isFinal ? "Winner" : `Reached ${round.name}`;
     return isFinal ? "Runner-up" : round.name;
   }
-  const inGroup = (season.groups || []).some(g => g.teamIds.includes(teamId));
+  const inGroup = (season.groups || []).some(g => g.teamIds.includes(teamId)) || (season.preQualGroups || []).some(g => g.teamIds.includes(teamId));
   return inGroup ? "Group stage" : "Did not play";
 }
 function getTeamRecordInSeason(season, teamId) {
-  const inSeason = (season.groups || []).some(g => g.teamIds.includes(teamId)) || allSeasonMatches(season).some(m => m.team1Id === teamId || m.team2Id === teamId);
+  const inSeason = (season.groups || []).some(g => g.teamIds.includes(teamId)) || (season.preQualGroups || []).some(g => g.teamIds.includes(teamId)) || allSeasonMatches(season).some(m => m.team1Id === teamId || m.team2Id === teamId);
   if (!inSeason) return null;
   let played = 0,
     won = 0,
@@ -330,6 +329,21 @@ function generateRoundRobin(teamIds) {
     }
   }
   return matches;
+}
+
+// adds any missing round-robin pairings to an existing match list, without touching
+// or removing matches that are already there (so it never wipes manually entered data)
+function addMissingRoundRobin(existingMatches, teamIds) {
+  const hasPair = (a, b) => existingMatches.some(m => m.team1Id === a && m.team2Id === b || m.team1Id === b && m.team2Id === a);
+  const additions = [];
+  for (let i = 0; i < teamIds.length; i++) {
+    for (let j = i + 1; j < teamIds.length; j++) {
+      if (!hasPair(teamIds[i], teamIds[j])) {
+        additions.push(blankMatch(teamIds[i], teamIds[j]));
+      }
+    }
+  }
+  return [...existingMatches, ...additions];
 }
 function reorder(list, fromIdx, toIdx) {
   const arr = [...list];
@@ -820,7 +834,7 @@ function GroupPanel({
   function generateFixtures() {
     onUpdateGroup({
       ...group,
-      matches: generateRoundRobin(group.teamIds)
+      matches: addMissingRoundRobin(group.matches, group.teamIds)
     });
   }
   function updateMatch(id, patched) {
@@ -883,7 +897,7 @@ function GroupPanel({
     onClick: generateFixtures,
     disabled: group.teamIds.length < 2,
     className: "bg-[#E8A33D] disabled:opacity-40 text-[#16213E] text-sm font-semibold px-3 py-1.5 rounded whitespace-nowrap"
-  }, "Round-robin fixtures"))), /*#__PURE__*/React.createElement(MatchList, {
+  }, "Add missing round-robin fixtures"))), /*#__PURE__*/React.createElement(MatchList, {
     matches: group.matches,
     teams: allTeams,
     matchOvers: matchOvers,
@@ -1024,6 +1038,10 @@ function OverviewPanel({
   season,
   allTeams
 }) {
+  const preQualLines = (season.preQualGroups || []).flatMap(g => g.matches.filter(isPlayed).map(m => ({
+    groupName: g.name,
+    m
+  })));
   const groupLines = (season.groups || []).flatMap(g => g.matches.filter(isPlayed).map(m => ({
     groupName: g.name,
     m
@@ -1037,7 +1055,18 @@ function OverviewPanel({
   }, /*#__PURE__*/React.createElement(TournamentResultPanel, {
     season: season,
     allTeams: allTeams
-  }), (season.groups || []).map(g => /*#__PURE__*/React.createElement("div", {
+  }), (season.preQualGroups || []).map(g => /*#__PURE__*/React.createElement("div", {
+    key: g.id
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "font-display text-[#E8A33D] text-base mb-2"
+  }, "Pre-Qual: ", g.name), /*#__PURE__*/React.createElement(StandingsTable, {
+    teams: allTeams,
+    standings: computeStandings(g.teamIds, g.matches, season.oversPerMatch)
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 space-y-1 font-mono text-sm text-[#F5EFDC]"
+  }, g.matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
+    key: m.id
+  }, resultLine(m, allTeams, season.oversPerMatch)))))), (season.groups || []).map(g => /*#__PURE__*/React.createElement("div", {
     key: g.id
   }, /*#__PURE__*/React.createElement("h2", {
     className: "font-display text-[#E8A33D] text-base mb-2"
@@ -1056,7 +1085,7 @@ function OverviewPanel({
     className: "space-y-1 font-mono text-sm text-[#F5EFDC]"
   }, r.matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
     key: m.id
-  }, resultLine(m, allTeams, season.oversPerMatch)))))), groupLines.length === 0 && koLines.length === 0 && /*#__PURE__*/React.createElement("p", {
+  }, resultLine(m, allTeams, season.oversPerMatch)))))), preQualLines.length === 0 && groupLines.length === 0 && koLines.length === 0 && /*#__PURE__*/React.createElement("p", {
     className: "text-[#F5EFDC]/60 text-sm italic"
   }, "Nothing recorded yet — add teams and fixtures to see the summary here."));
 }
@@ -1193,6 +1222,61 @@ function TeamManagerScreen({
 // ============================================================
 // Pitchside — season (tournament) editor
 // ============================================================
+
+// shared UI for any "set of round-robin groups" stage — used for both
+// Pre-Qualifiers and the main Groups, so they behave identically
+function GroupsSection({
+  groups,
+  allTeams,
+  matchOvers,
+  onAddGroup,
+  onUpdateGroup,
+  onRemoveGroup,
+  addLabel,
+  emptyText
+}) {
+  const [newGroupName, setNewGroupName] = useState("");
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const selected = groups[Math.min(selectedIdx, Math.max(0, groups.length - 1))];
+  function add() {
+    if (!newGroupName.trim()) return;
+    onAddGroup(newGroupName.trim());
+    setNewGroupName("");
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg p-4 flex gap-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: newGroupName,
+    onChange: e => setNewGroupName(e.target.value),
+    onKeyDown: e => e.key === "Enter" && add(),
+    placeholder: addLabel,
+    className: "flex-1 border border-[#1B4332]/30 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: add,
+    className: "bg-[#1B4332] text-[#F5EFDC] px-4 py-2 rounded text-sm font-semibold"
+  }, "+ Group")), groups.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/60 text-sm italic"
+  }, emptyText) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 flex-wrap items-center"
+  }, groups.map((g, i) => /*#__PURE__*/React.createElement("button", {
+    key: g.id,
+    onClick: () => setSelectedIdx(i),
+    className: `px-4 py-1.5 rounded-full text-sm font-semibold transition ${selectedIdx === i ? "bg-[#E8A33D] text-[#16213E]" : "bg-[#16213E] text-[#F5EFDC]/60"}`
+  }, g.name)), selected && /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      onRemoveGroup(selected.id);
+      setSelectedIdx(0);
+    },
+    className: "text-[#C1443C]/80 text-xs font-semibold ml-2"
+  }, "Remove ", selected.name)), selected && /*#__PURE__*/React.createElement(GroupPanel, {
+    group: selected,
+    allTeams: allTeams,
+    matchOvers: matchOvers,
+    onUpdateGroup: onUpdateGroup
+  })));
+}
 function SeasonEditor({
   season,
   teams,
@@ -1201,34 +1285,54 @@ function SeasonEditor({
   onClose
 }) {
   const [tab, setTab] = useState("groups");
-  const [newGroupName, setNewGroupName] = useState("");
-  const [selectedGroupIdx, setSelectedGroupIdx] = useState(0);
-  const seasonTeamIds = Array.from(new Set((season.groups || []).flatMap(g => g.teamIds)));
-  function addGroup() {
-    if (!newGroupName.trim()) return;
+  const preQualGroups = season.preQualGroups || [];
+  const groups = season.groups || [];
+  const seasonTeamIds = Array.from(new Set([...preQualGroups.flatMap(g => g.teamIds), ...groups.flatMap(g => g.teamIds)]));
+  function addPreQualGroup(name) {
     onUpdateSeason({
       ...season,
-      groups: [...(season.groups || []), {
-        id: uid("grp"),
-        name: newGroupName.trim(),
+      preQualGroups: [...preQualGroups, {
+        id: uid("pqgrp"),
+        name,
         teamIds: [],
         matches: []
       }]
     });
-    setNewGroupName("");
+  }
+  function updatePreQualGroup(updated) {
+    onUpdateSeason({
+      ...season,
+      preQualGroups: preQualGroups.map(g => g.id === updated.id ? updated : g)
+    });
+  }
+  function removePreQualGroup(id) {
+    onUpdateSeason({
+      ...season,
+      preQualGroups: preQualGroups.filter(g => g.id !== id)
+    });
+  }
+  function addGroup(name) {
+    onUpdateSeason({
+      ...season,
+      groups: [...groups, {
+        id: uid("grp"),
+        name,
+        teamIds: [],
+        matches: []
+      }]
+    });
   }
   function updateGroup(updated) {
     onUpdateSeason({
       ...season,
-      groups: season.groups.map(g => g.id === updated.id ? updated : g)
+      groups: groups.map(g => g.id === updated.id ? updated : g)
     });
   }
   function removeGroup(id) {
     onUpdateSeason({
       ...season,
-      groups: season.groups.filter(g => g.id !== id)
+      groups: groups.filter(g => g.id !== id)
     });
-    setSelectedGroupIdx(0);
   }
   function updateKnockoutRounds(rounds) {
     onUpdateSeason({
@@ -1236,9 +1340,10 @@ function SeasonEditor({
       knockoutRounds: rounds
     });
   }
-  const groups = season.groups || [];
-  const selectedGroup = groups[Math.min(selectedGroupIdx, Math.max(0, groups.length - 1))];
   const tabs = [{
+    key: "prequals",
+    label: "Pre-Quals"
+  }, {
     key: "groups",
     label: "Groups"
   }, {
@@ -1272,36 +1377,25 @@ function SeasonEditor({
     className: `px-5 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition ${tab === t.key ? "text-[#E8A33D] border-[#E8A33D]" : "text-[#F5EFDC]/50 border-transparent"}`
   }, t.label))), /*#__PURE__*/React.createElement("main", {
     className: "max-w-4xl mx-auto px-4 py-6 space-y-4"
-  }, tab === "groups" && /*#__PURE__*/React.createElement("div", {
-    className: "space-y-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-[#F5EFDC] rounded-lg p-4 flex gap-2"
-  }, /*#__PURE__*/React.createElement("input", {
-    value: newGroupName,
-    onChange: e => setNewGroupName(e.target.value),
-    onKeyDown: e => e.key === "Enter" && addGroup(),
-    placeholder: "Group name, e.g. A",
-    className: "flex-1 border border-[#1B4332]/30 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
-  }), /*#__PURE__*/React.createElement("button", {
-    onClick: addGroup,
-    className: "bg-[#1B4332] text-[#F5EFDC] px-4 py-2 rounded text-sm font-semibold"
-  }, "+ Group")), groups.length === 0 ? /*#__PURE__*/React.createElement("p", {
-    className: "text-[#F5EFDC]/60 text-sm italic"
-  }, "No groups yet — add one above.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-2 flex-wrap items-center"
-  }, groups.map((g, i) => /*#__PURE__*/React.createElement("button", {
-    key: g.id,
-    onClick: () => setSelectedGroupIdx(i),
-    className: `px-4 py-1.5 rounded-full text-sm font-semibold transition ${selectedGroupIdx === i ? "bg-[#E8A33D] text-[#16213E]" : "bg-[#16213E] text-[#F5EFDC]/60"}`
-  }, g.name)), selectedGroup && /*#__PURE__*/React.createElement("button", {
-    onClick: () => removeGroup(selectedGroup.id),
-    className: "text-[#C1443C]/80 text-xs font-semibold ml-2"
-  }, "Remove ", selectedGroup.name)), selectedGroup && /*#__PURE__*/React.createElement(GroupPanel, {
-    group: selectedGroup,
+  }, tab === "prequals" && /*#__PURE__*/React.createElement(GroupsSection, {
+    groups: preQualGroups,
     allTeams: teams,
     matchOvers: season.oversPerMatch,
-    onUpdateGroup: updateGroup
-  }))), tab === "knockouts" && /*#__PURE__*/React.createElement(KnockoutPanel, {
+    onAddGroup: addPreQualGroup,
+    onUpdateGroup: updatePreQualGroup,
+    onRemoveGroup: removePreQualGroup,
+    addLabel: "Pre-qual group name, e.g. Pre-Qual A",
+    emptyText: "No pre-qualifying groups yet — add one above if your format needs a stage before the main groups (e.g. to whittle down a larger pool of teams)."
+  }), tab === "groups" && /*#__PURE__*/React.createElement(GroupsSection, {
+    groups: groups,
+    allTeams: teams,
+    matchOvers: season.oversPerMatch,
+    onAddGroup: addGroup,
+    onUpdateGroup: updateGroup,
+    onRemoveGroup: removeGroup,
+    addLabel: "Group name, e.g. A",
+    emptyText: "No groups yet — add one above."
+  }), tab === "knockouts" && /*#__PURE__*/React.createElement(KnockoutPanel, {
     rounds: season.knockoutRounds || [],
     allTeams: teams,
     matchOvers: season.oversPerMatch,
@@ -1332,6 +1426,7 @@ function blankSeason(id, name, oversPerMatch) {
     id,
     name,
     oversPerMatch,
+    preQualGroups: [],
     groups: [],
     knockoutRounds: []
   };
@@ -1494,7 +1589,6 @@ try {
   document.getElementById("root").innerHTML = '<div id="boot-status">App failed to start: ' + e.message + '</div>';
 }
 </script>
-
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
