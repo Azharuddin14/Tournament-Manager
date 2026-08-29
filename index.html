@@ -226,6 +226,31 @@ function allSeasonMatches(season) {
   return list;
 }
 
+// pulls the player's name out of a freeform MOM line like "Head 58(45)" or
+// "Bumrah 4/25" by stripping the trailing batting/bowling figures
+function extractMomName(momText) {
+  if (!momText) return null;
+  let name = momText.trim();
+  name = name.replace(/\s+\d+\*?\(\d+(\.\d+)?\)$/, ""); // strip trailing "58(45)" / "81*(45)"
+  name = name.replace(/\s+\d+\/\d+$/, ""); // strip trailing bowling figures "4/25"
+  name = name.trim();
+  return name || momText.trim();
+}
+
+// Man-of-the-Match tally for a season, sorted with the most awards first
+function getMomTally(season) {
+  const counts = {};
+  allSeasonMatches(season).forEach(m => {
+    const name = extractMomName(m.mom);
+    if (!name) return;
+    counts[name] = (counts[name] || 0) + 1;
+  });
+  return Object.entries(counts).map(([name, count]) => ({
+    name,
+    count
+  })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
 // champion / runner-up / semi-finalists for a season, derived from the (user-named,
 // user-ordered) knockout rounds — last round is the Final, one before it the Semis
 function getChampionInfo(season) {
@@ -929,11 +954,13 @@ function GroupPanel({
   }, "✕"))), group.teamIds.length === 0 && /*#__PURE__*/React.createElement("span", {
     className: "text-[#16213E]/40 text-sm italic"
   }, "No teams yet")), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap gap-2"
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
   }, /*#__PURE__*/React.createElement("select", {
     value: addingTeam,
     onChange: e => setAddingTeam(e.target.value),
-    className: "flex-1 min-w-[140px] text-sm border border-[#1B4332]/20 rounded px-2 py-1.5"
+    className: "flex-1 min-w-0 text-sm border border-[#1B4332]/20 rounded px-2 py-1.5"
   }, /*#__PURE__*/React.createElement("option", {
     value: ""
   }, "Add a team…"), availableTeams.map(t => /*#__PURE__*/React.createElement("option", {
@@ -943,11 +970,11 @@ function GroupPanel({
     onClick: addTeam,
     disabled: !addingTeam,
     className: "bg-[#1B4332] disabled:opacity-40 text-[#F5EFDC] text-sm font-semibold px-3 py-1.5 rounded shrink-0"
-  }, "Add"), /*#__PURE__*/React.createElement("button", {
+  }, "Add")), /*#__PURE__*/React.createElement("button", {
     onClick: generateFixtures,
     disabled: group.teamIds.length < 2,
-    className: "bg-[#E8A33D] disabled:opacity-40 text-[#16213E] text-sm font-semibold px-3 py-1.5 rounded w-full sm:w-auto"
-  }, "Add missing round-robin fixtures"))), /*#__PURE__*/React.createElement(MatchList, {
+    className: "w-full bg-[#E8A33D] disabled:opacity-40 text-[#16213E] text-sm font-semibold px-3 py-1.5 rounded"
+  }, "Add missing fixtures"))), /*#__PURE__*/React.createElement(MatchList, {
     matches: group.matches,
     teams: allTeams,
     matchOvers: matchOvers,
@@ -1100,6 +1127,7 @@ function OverviewPanel({
     groupName: r.name,
     m
   })));
+  const momTally = getMomTally(season);
   return /*#__PURE__*/React.createElement("div", {
     className: "space-y-5"
   }, /*#__PURE__*/React.createElement(TournamentResultPanel, {
@@ -1152,7 +1180,18 @@ function OverviewPanel({
     matchOvers: season.oversPerMatch
   })))))), preQualLines.length === 0 && groupLines.length === 0 && koLines.length === 0 && /*#__PURE__*/React.createElement("p", {
     className: "text-[#F5EFDC]/60 text-sm italic"
-  }, "Nothing recorded yet — add teams and fixtures to see the summary here."));
+  }, "Nothing recorded yet — add teams and fixtures to see the summary here."), momTally.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    className: "font-display text-[#E8A33D] text-base mb-2"
+  }, "Man of the Match — count"), /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg overflow-hidden"
+  }, /*#__PURE__*/React.createElement("ul", null, momTally.map((row, i) => /*#__PURE__*/React.createElement("li", {
+    key: row.name,
+    className: "flex items-center justify-between px-4 py-2 border-b border-[#1B4332]/10 last:border-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-[#16213E]"
+  }, i + 1, ". ", row.name), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-mono font-bold text-[#1B4332]"
+  }, row.count)))))));
 }
 
 // ============================================================
