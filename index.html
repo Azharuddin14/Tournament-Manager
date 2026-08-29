@@ -2088,9 +2088,22 @@ function App() {
       className: "min-w-0 flex-1"
     }, /*#__PURE__*/React.createElement("div", {
       className: "font-display text-lg text-[#16213E] truncate"
-    }, s.name), /*#__PURE__*/React.createElement("div", {
-      className: "text-xs text-[#16213E]/60 mt-0.5"
-    }, (s.groups || []).length, " groups · ", info ? `Champion: ${teamName(state.teams, info.championId)}` : "In progress")), /*#__PURE__*/React.createElement("div", {
+    }, s.name), s.venue && /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-[#16213E]/60 mt-1"
+    }, "📍 ", s.venue), info ? /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-1.5 mt-1.5 bg-[#E8A33D]/20 rounded px-2 py-1 w-fit text-[#1B4332]"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-sm"
+    }, "🏆"), /*#__PURE__*/React.createElement(TeamBadge, {
+      team: getTeam(state.teams, info.championId),
+      size: 13
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "font-display text-sm text-[#1B4332] font-bold"
+    }, "Champion")) : /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-[#16213E]/50 italic mt-1.5"
+    }, "In progress"), s.playerOfTournament && /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-[#16213E]/60 mt-1"
+    }, "🏅 ", s.playerOfTournament.name, s.playerOfTournament.teamId ? ` (${teamName(state.teams, s.playerOfTournament.teamId)})` : "")), /*#__PURE__*/React.createElement("div", {
       className: "flex gap-2 shrink-0"
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => {
