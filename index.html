@@ -155,7 +155,8 @@ function getMatchDisplay(match, teams, matchOvers) {
     firstScoreText: formatScore(firstScore, matchOvers),
     secondScoreText: formatScore(secondScore, matchOvers),
     margin: marginText(match, teams, matchOvers),
-    mom: match.mom || null
+    mom: match.mom || null,
+    venue: match.venue || null
   };
 }
 function computeStandings(teamIds, matches, matchOvers) {
@@ -440,6 +441,31 @@ function getKnockoutH2H(seasons, teamId) {
 function getTeamMatchesInSeason(season, teamId) {
   return allSeasonMatches(season).filter(m => m.team1Id === teamId || m.team2Id === teamId);
 }
+
+// same, but each match tagged with the stage it belongs to (using the
+// season's own group/round names — e.g. "Pre-Qual: A", "Group B", "Quarters")
+function getTeamMatchesWithStage(season, teamId) {
+  const list = [];
+  (season.preQualGroups || []).forEach(g => g.matches.forEach(m => {
+    if (m.team1Id === teamId || m.team2Id === teamId) list.push({
+      match: m,
+      stage: `Pre-Qual: ${g.name}`
+    });
+  }));
+  (season.groups || []).forEach(g => g.matches.forEach(m => {
+    if (m.team1Id === teamId || m.team2Id === teamId) list.push({
+      match: m,
+      stage: `Group ${g.name}`
+    });
+  }));
+  (season.knockoutRounds || []).forEach(r => r.matches.forEach(m => {
+    if (m.team1Id === teamId || m.team2Id === teamId) list.push({
+      match: m,
+      stage: r.name
+    });
+  }));
+  return list;
+}
 function generateRoundRobin(teamIds) {
   const matches = [];
   for (let i = 0; i < teamIds.length; i++) {
@@ -697,7 +723,9 @@ function MatchResultDisplay({
     className: "font-sans font-semibold text-sm"
   }, info.margin), info.mom && /*#__PURE__*/React.createElement("div", {
     className: "font-sans text-xs opacity-70"
-  }, "🏅 ", info.mom));
+  }, "🏅 ", info.mom), info.venue && /*#__PURE__*/React.createElement("div", {
+    className: "font-sans text-xs opacity-50"
+  }, "📍 ", info.venue));
 }
 function StandingsTable({
   teams,
@@ -862,6 +890,15 @@ function MatchCard({
     }),
     placeholder: "e.g. Head 58(45)",
     className: "w-full bg-[#F5EFDC] border border-[#1B4332]/30 rounded px-2 py-1.5 text-sm font-mono text-[#16213E] focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "text-[10px] text-[#F5EFDC]/60 block mb-1"
+  }, "Venue"), /*#__PURE__*/React.createElement("input", {
+    value: match.venue,
+    onChange: e => patch({
+      venue: e.target.value
+    }),
+    placeholder: "e.g. Wankhede Stadium",
+    className: "w-full bg-[#F5EFDC] border border-[#1B4332]/30 rounded px-2 py-1.5 text-sm text-[#16213E] focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
   })), /*#__PURE__*/React.createElement("button", {
     onClick: () => setEditing(false),
     className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-1.5 rounded hover:brightness-110 transition"
@@ -1283,7 +1320,7 @@ function SeasonMatchesCard({
   allTeams
 }) {
   const [expanded, setExpanded] = useState(false);
-  const matches = expanded ? getTeamMatchesInSeason(season, team.id) : [];
+  const matchesWithStage = expanded ? getTeamMatchesWithStage(season, team.id) : [];
   return /*#__PURE__*/React.createElement("li", {
     className: "bg-[#F5EFDC] rounded-lg p-4"
   }, /*#__PURE__*/React.createElement("button", {
@@ -1301,12 +1338,17 @@ function SeasonMatchesCard({
     className: "text-[10px] uppercase tracking-wide text-[#1B4332]/60 font-semibold mt-1.5"
   }, "Highest stage: ", record.stage)), expanded && /*#__PURE__*/React.createElement("div", {
     className: "mt-3 pt-3 border-t border-[#1B4332]/10 space-y-2"
-  }, matches.filter(isPlayed).length === 0 ? /*#__PURE__*/React.createElement("p", {
+  }, matchesWithStage.filter(x => isPlayed(x.match)).length === 0 ? /*#__PURE__*/React.createElement("p", {
     className: "text-[#16213E]/40 text-xs italic"
-  }, "No completed matches yet.") : matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
+  }, "No completed matches yet.") : matchesWithStage.filter(x => isPlayed(x.match)).map(({
+    match: m,
+    stage
+  }) => /*#__PURE__*/React.createElement("div", {
     key: m.id,
     className: "bg-[#1B4332]/5 rounded p-2 text-[#16213E]"
-  }, /*#__PURE__*/React.createElement(MatchResultDisplay, {
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] uppercase tracking-wide text-[#1B4332]/50 font-semibold mb-1"
+  }, stage), /*#__PURE__*/React.createElement(MatchResultDisplay, {
     match: m,
     teams: allTeams,
     matchOvers: season.oversPerMatch
