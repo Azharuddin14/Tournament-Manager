@@ -2012,8 +2012,9 @@ function TeamManagerScreen({
     }, sc.runnerUps > 0 ? `🥈×${sc.runnerUps}` : ""), /*#__PURE__*/React.createElement("span", {
       title: "Semis"
     }, sc.semis > 0 ? `🥉×${sc.semis}` : ""), /*#__PURE__*/React.createElement("span", {
-      title: "Win %"
-    }, winPct !== null ? `${winPct}%W` : "")), /*#__PURE__*/React.createElement("div", {
+      title: "Win %",
+      className: "text-right"
+    }, winPct !== null ? `${winPct}%` : "")), /*#__PURE__*/React.createElement("div", {
       className: "flex items-center gap-3 shrink-0"
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => setViewingId(t.id),
