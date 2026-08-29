@@ -917,17 +917,17 @@ function MatchList({
     key: m.id,
     className: "flex items-start gap-1.5"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col shrink-0 pt-1"
+    className: "flex flex-col shrink-0 pt-1 gap-2.5"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => idx > 0 && onReorder(idx, idx - 1),
     disabled: idx === 0,
     title: "Move up",
-    className: "text-[#F5EFDC]/50 hover:text-[#E8A33D] disabled:opacity-20 disabled:hover:text-[#F5EFDC]/50 text-xs leading-none px-1 py-0.5"
+    className: "text-[#F5EFDC]/50 hover:text-[#E8A33D] disabled:opacity-20 disabled:hover:text-[#F5EFDC]/50 text-base leading-none px-2 py-2 -m-2"
   }, "▲"), /*#__PURE__*/React.createElement("button", {
     onClick: () => idx < matches.length - 1 && onReorder(idx, idx + 1),
     disabled: idx === matches.length - 1,
     title: "Move down",
-    className: "text-[#F5EFDC]/50 hover:text-[#E8A33D] disabled:opacity-20 disabled:hover:text-[#F5EFDC]/50 text-xs leading-none px-1 py-0.5"
+    className: "text-[#F5EFDC]/50 hover:text-[#E8A33D] disabled:opacity-20 disabled:hover:text-[#F5EFDC]/50 text-base leading-none px-2 py-2 -m-2"
   }, "▼")), /*#__PURE__*/React.createElement("div", {
     className: "flex-1 min-w-0"
   }, /*#__PURE__*/React.createElement(MatchCard, {
@@ -1754,17 +1754,17 @@ function App() {
       key: s.id,
       className: "bg-[#F5EFDC] rounded-lg p-4 flex items-center gap-2"
     }, /*#__PURE__*/React.createElement("div", {
-      className: "flex flex-col shrink-0"
+      className: "flex flex-col shrink-0 gap-2.5"
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => idx > 0 && reorderSeasons(idx, idx - 1),
       disabled: idx === 0,
       title: "Move up",
-      className: "text-[#16213E]/40 hover:text-[#1B4332] disabled:opacity-20 disabled:hover:text-[#16213E]/40 text-xs leading-none px-1 py-0.5"
+      className: "text-[#16213E]/40 hover:text-[#1B4332] disabled:opacity-20 disabled:hover:text-[#16213E]/40 text-base leading-none px-2 py-2 -m-2"
     }, "▲"), /*#__PURE__*/React.createElement("button", {
       onClick: () => idx < state.seasons.length - 1 && reorderSeasons(idx, idx + 1),
       disabled: idx === state.seasons.length - 1,
       title: "Move down",
-      className: "text-[#16213E]/40 hover:text-[#1B4332] disabled:opacity-20 disabled:hover:text-[#16213E]/40 text-xs leading-none px-1 py-0.5"
+      className: "text-[#16213E]/40 hover:text-[#1B4332] disabled:opacity-20 disabled:hover:text-[#16213E]/40 text-base leading-none px-2 py-2 -m-2"
     }, "▼")), /*#__PURE__*/React.createElement("div", {
       className: "min-w-0 flex-1"
     }, /*#__PURE__*/React.createElement("div", {
