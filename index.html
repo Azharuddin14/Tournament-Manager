@@ -230,11 +230,17 @@ function allSeasonMatches(season) {
 // "Bumrah 4/25" by stripping the trailing batting/bowling figures
 function extractMomName(momText) {
   if (!momText) return null;
-  let name = momText.trim();
-  name = name.replace(/\s+\d+\*?\(\d+(\.\d+)?\)$/, ""); // strip trailing "58(45)" / "81*(45)"
-  name = name.replace(/\s+\d+\/\d+$/, ""); // strip trailing bowling figures "4/25"
-  name = name.trim();
-  return name || momText.trim();
+  const trimmed = momText.trim();
+  // find the FIRST batting figure "58(45)"/"81*(45)" or bowling figure "5/33"
+  // anywhere in the string — everything before it is the player's name. This
+  // handles all-round performances like "Andre Russell 54(42) 5/33" correctly,
+  // where a naive "strip from the end" approach would leave the batting
+  // figures stuck onto the name.
+  const perfPattern = /\d+\*?\(\d+(?:\.\d+)?\)|\d+\/\d+/;
+  const m = trimmed.match(perfPattern);
+  if (!m) return trimmed;
+  const name = trimmed.slice(0, m.index).trim();
+  return name || trimmed;
 }
 
 // Man-of-the-Match tally for a season, sorted with the most awards first
@@ -682,7 +688,7 @@ function MatchCard({
   onRemove,
   dragHandleProps
 }) {
-  const [editing, setEditing] = useState(!isPlayed(match));
+  const [editing, setEditing] = useState(false);
   const t1 = getTeam(teams, match.team1Id);
   const t2 = getTeam(teams, match.team2Id);
   const played = isPlayed(match);
