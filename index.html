@@ -1777,12 +1777,13 @@ function RecordLists({
 function RecordsScreen({
   teams,
   seasons,
-  onClose
+  onClose,
+  bodyFont
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen bg-[#0F2C22]",
     style: {
-      fontFamily: "'Inter', sans-serif"
+      fontFamily: bodyFont || "'Inter', sans-serif"
     }
   }, /*#__PURE__*/React.createElement("header", {
     className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3"
@@ -1945,7 +1946,8 @@ function TeamManagerScreen({
   onAddTeam,
   onUpdateTeam,
   onDeleteTeam,
-  onClose
+  onClose,
+  bodyFont
 }) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -1966,7 +1968,7 @@ function TeamManagerScreen({
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen bg-[#0F2C22]",
     style: {
-      fontFamily: "'Inter', sans-serif"
+      fontFamily: bodyFont || "'Inter', sans-serif"
     }
   }, /*#__PURE__*/React.createElement("header", {
     className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3"
@@ -2012,11 +2014,18 @@ function TeamManagerScreen({
     const winPct = overall.played > 0 ? Math.round(overall.won / overall.played * 100) : null;
     return /*#__PURE__*/React.createElement("li", {
       key: t.id,
-      className: "bg-[#F5EFDC] rounded-lg p-3 flex items-center gap-2"
+      onClick: () => setViewingId(t.id),
+      className: "bg-[#F5EFDC] rounded-lg p-3 flex items-center gap-2 cursor-pointer active:opacity-80"
+    }, /*#__PURE__*/React.createElement("span", {
+      onClick: e => {
+        e.stopPropagation();
+        setEditingId(t.id);
+      },
+      title: "Tap to edit"
     }, /*#__PURE__*/React.createElement(TeamBadge, {
       team: t,
       nameClassName: "truncate w-16 shrink-0"
-    }), /*#__PURE__*/React.createElement("div", {
+    })), /*#__PURE__*/React.createElement("div", {
       className: "grid grid-cols-4 gap-1 text-xs text-[#16213E]/70 font-mono w-40 shrink-0"
     }, /*#__PURE__*/React.createElement("span", {
       title: "Championships"
@@ -2027,15 +2036,7 @@ function TeamManagerScreen({
     }, sc.semis > 0 ? `🥉×${sc.semis}` : ""), /*#__PURE__*/React.createElement("span", {
       title: "Win %",
       className: "text-right"
-    }, winPct !== null ? `${winPct}%` : "")), /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center gap-3 shrink-0 ml-auto"
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => setViewingId(t.id),
-      className: "text-[#1B4332] text-xs font-semibold underline"
-    }, "Performance"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setEditingId(t.id),
-      className: "text-[#1B4332] text-xs font-semibold underline"
-    }, "Edit")));
+    }, winPct !== null ? `${winPct}%` : "")));
   })))));
 }
 
@@ -2136,7 +2137,8 @@ function SeasonEditor({
   teams,
   allSeasons,
   onUpdateSeason,
-  onClose
+  onClose,
+  bodyFont
 }) {
   const [tab, setTab] = useState("groups");
   const [editingDetails, setEditingDetails] = useState(false);
@@ -2240,7 +2242,7 @@ function SeasonEditor({
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen bg-[#0F2C22]",
     style: {
-      fontFamily: "'Inter', sans-serif"
+      fontFamily: bodyFont || "'Inter', sans-serif"
     }
   }, /*#__PURE__*/React.createElement("header", {
     className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5"
@@ -2356,19 +2358,68 @@ function blankSeason(id, name, oversPerMatch) {
     knockoutRounds: []
   };
 }
+const FONT_KEY = "pitchside_font_v1";
+const FONT_OPTIONS = [{
+  id: "default",
+  label: "Default",
+  body: "'Inter', sans-serif",
+  display: "'Oswald', sans-serif",
+  mono: "'JetBrains Mono', monospace"
+}, {
+  id: "inter",
+  label: "Inter (uniform)",
+  body: "'Inter', sans-serif",
+  display: "'Inter', sans-serif",
+  mono: "'Inter', sans-serif"
+}, {
+  id: "georgia",
+  label: "Georgia",
+  body: "Georgia, serif",
+  display: "Georgia, serif",
+  mono: "Georgia, serif"
+}, {
+  id: "courier",
+  label: "Courier New",
+  body: "'Courier New', monospace",
+  display: "'Courier New', monospace",
+  mono: "'Courier New', monospace"
+}, {
+  id: "verdana",
+  label: "Verdana",
+  body: "Verdana, sans-serif",
+  display: "Verdana, sans-serif",
+  mono: "Verdana, sans-serif"
+}, {
+  id: "times",
+  label: "Times New Roman",
+  body: "'Times New Roman', serif",
+  display: "'Times New Roman', serif",
+  mono: "'Times New Roman', serif"
+}];
 function App() {
   const [state, setState] = useState(loadState);
   const [screen, setScreen] = useState("home"); // "home" | "teams" | "season"
   const [activeSeasonId, setActiveSeasonId] = useState(null);
   const [newSeasonName, setNewSeasonName] = useState("");
   const [newSeasonOvers, setNewSeasonOvers] = useState(20);
+  const [fontId, setFontId] = useState(() => {
+    try {
+      return window.localStorage.getItem(FONT_KEY) || "default";
+    } catch (e) {
+      return "default";
+    }
+  });
+  const font = FONT_OPTIONS.find(f => f.id === fontId) || FONT_OPTIONS[0];
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
+  useEffect(() => {
+    window.localStorage.setItem(FONT_KEY, fontId);
+  }, [fontId]);
   const fontStyle = /*#__PURE__*/React.createElement("style", null, `
       @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
-      .font-display { font-family: 'Oswald', sans-serif; }
-      .font-mono { font-family: 'JetBrains Mono', monospace; }
+      .font-display { font-family: ${font.display}; }
+      .font-mono { font-family: ${font.mono}; }
     `);
   function addTeam(t) {
     setState(s => ({
@@ -2462,7 +2513,8 @@ function App() {
       onAddTeam: addTeam,
       onUpdateTeam: updateTeam,
       onDeleteTeam: deleteTeam,
-      onClose: () => setScreen("home")
+      onClose: () => setScreen("home"),
+      bodyFont: font.body
     }));
   }
   if (screen === "season") {
@@ -2476,14 +2528,16 @@ function App() {
       teams: state.teams,
       allSeasons: state.seasons,
       onUpdateSeason: updateSeason,
-      onClose: () => setScreen("home")
+      onClose: () => setScreen("home"),
+      bodyFont: font.body
     }));
   }
   if (screen === "records") {
     return /*#__PURE__*/React.createElement(React.Fragment, null, fontStyle, /*#__PURE__*/React.createElement(RecordsScreen, {
       teams: state.teams,
       seasons: state.seasons,
-      onClose: () => setScreen("home")
+      onClose: () => setScreen("home"),
+      bodyFont: font.body
     }));
   }
 
@@ -2491,7 +2545,7 @@ function App() {
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen bg-[#0F2C22]",
     style: {
-      fontFamily: "'Inter', sans-serif"
+      fontFamily: font.body
     }
   }, fontStyle, /*#__PURE__*/React.createElement("header", {
     className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3 flex-wrap"
@@ -2518,7 +2572,15 @@ function App() {
   })), /*#__PURE__*/React.createElement("button", {
     onClick: () => setScreen("records"),
     className: "bg-[#16213E] text-[#F5EFDC] font-semibold text-xs px-3 py-2 rounded shrink-0"
-  }, "Records"), /*#__PURE__*/React.createElement("button", {
+  }, "Records"), /*#__PURE__*/React.createElement("select", {
+    value: fontId,
+    onChange: e => setFontId(e.target.value),
+    title: "Font",
+    className: "bg-[#16213E] text-[#F5EFDC]/70 text-[10px] px-1.5 py-2 rounded shrink-0 border-none outline-none"
+  }, FONT_OPTIONS.map(f => /*#__PURE__*/React.createElement("option", {
+    key: f.id,
+    value: f.id
+  }, f.label))), /*#__PURE__*/React.createElement("button", {
     onClick: () => setScreen("teams"),
     className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
   }, "Manage Teams"))), /*#__PURE__*/React.createElement("main", {
