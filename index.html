@@ -137,10 +137,26 @@ function resultLine(match, teams, matchOvers) {
   const secondId = firstId === match.team1Id ? match.team2Id : match.team1Id;
   const firstScore = firstId === match.team1Id ? match.score1 : match.score2;
   const secondScore = firstId === match.team1Id ? match.score2 : match.score1;
-  const winnerId = getWinnerId(match);
-  const tag = id => id && id === winnerId ? "#" : "";
-  const line = `${teamName(teams, firstId)}${tag(firstId)} ${formatScore(firstScore, matchOvers)} v ${teamName(teams, secondId)}${tag(secondId)} ${formatScore(secondScore, matchOvers)}`;
+  const line = `${teamName(teams, firstId)} ${formatScore(firstScore, matchOvers)} v ${teamName(teams, secondId)} ${formatScore(secondScore, matchOvers)}`;
   return match.mom ? `${line}  ${match.mom}` : line;
+}
+
+// structured version of the same info, for rendering with team-color badges
+// instead of a plain string (used wherever a match result appears visually)
+function getMatchDisplay(match, teams, matchOvers) {
+  if (!isPlayed(match)) return null;
+  const firstId = match.battingFirstId || match.team1Id;
+  const secondId = firstId === match.team1Id ? match.team2Id : match.team1Id;
+  const firstScore = firstId === match.team1Id ? match.score1 : match.score2;
+  const secondScore = firstId === match.team1Id ? match.score2 : match.score1;
+  return {
+    firstTeam: getTeam(teams, firstId),
+    secondTeam: getTeam(teams, secondId),
+    firstScoreText: formatScore(firstScore, matchOvers),
+    secondScoreText: formatScore(secondScore, matchOvers),
+    margin: marginText(match, teams, matchOvers),
+    mom: match.mom || null
+  };
 }
 function computeStandings(teamIds, matches, matchOvers) {
   const stats = {};
@@ -552,6 +568,34 @@ function ScoreFields({
     className: "accent-[#E8A33D]"
   }), "All out")));
 }
+
+// a played match's result, rendered with each team's color badge (not just a
+// plain string) — used in the match card and in the Overview summary alike
+function MatchResultDisplay({
+  match,
+  teams,
+  matchOvers
+}) {
+  const info = getMatchDisplay(match, teams, matchOvers);
+  if (!info) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "font-mono text-sm space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-x-2 gap-y-1"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: info.firstTeam,
+    size: 11
+  }), /*#__PURE__*/React.createElement("span", null, info.firstScoreText), /*#__PURE__*/React.createElement("span", {
+    className: "opacity-40 font-sans text-xs"
+  }, "v"), /*#__PURE__*/React.createElement(TeamBadge, {
+    team: info.secondTeam,
+    size: 11
+  }), /*#__PURE__*/React.createElement("span", null, info.secondScoreText)), info.margin && /*#__PURE__*/React.createElement("div", {
+    className: "font-sans font-semibold text-sm"
+  }, info.margin), info.mom && /*#__PURE__*/React.createElement("div", {
+    className: "font-sans text-xs opacity-70"
+  }, "🏅 ", info.mom));
+}
 function StandingsTable({
   teams,
   standings
@@ -617,8 +661,6 @@ function MatchCard({
   const t1 = getTeam(teams, match.team1Id);
   const t2 = getTeam(teams, match.team2Id);
   const played = isPlayed(match);
-  const line = resultLine(match, teams, matchOvers);
-  const margin = played ? marginText(match, teams, matchOvers) : null;
   const scoresEqual = match.score1.runs !== "" && match.score2.runs !== "" && Number(match.score1.runs) === Number(match.score2.runs);
   function patch(p) {
     onChange({
@@ -637,24 +679,30 @@ function MatchCard({
   }, "⠿"), /*#__PURE__*/React.createElement("span", {
     className: "flex-1 text-[#F5EFDC] text-sm font-mono truncate"
   }, t1 && t2 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
-    className: "mr-1"
+    className: "mr-1 inline-flex items-center gap-1"
   }, /*#__PURE__*/React.createElement("input", {
     type: "radio",
-    className: "accent-[#E8A33D] mr-1",
+    className: "accent-[#E8A33D] mr-0.5",
     checked: match.battingFirstId === match.team1Id,
     onChange: () => patch({
       battingFirstId: match.team1Id
     })
-  }), t1.name), "v", /*#__PURE__*/React.createElement("label", {
-    className: "ml-1"
+  }), /*#__PURE__*/React.createElement(TeamBadge, {
+    team: t1,
+    size: 10
+  })), "v", /*#__PURE__*/React.createElement("label", {
+    className: "ml-1 inline-flex items-center gap-1"
   }, /*#__PURE__*/React.createElement("input", {
     type: "radio",
-    className: "accent-[#E8A33D] mr-1",
+    className: "accent-[#E8A33D] mr-0.5",
     checked: match.battingFirstId === match.team2Id,
     onChange: () => patch({
       battingFirstId: match.team2Id
     })
-  }), t2.name), /*#__PURE__*/React.createElement("span", {
+  }), /*#__PURE__*/React.createElement(TeamBadge, {
+    team: t2,
+    size: 10
+  })), /*#__PURE__*/React.createElement("span", {
     className: "text-[#F5EFDC]/40 ml-1"
   }, "(tick who batted first)")) : /*#__PURE__*/React.createElement("span", {
     className: "text-[#F5EFDC]/40 italic"
@@ -668,12 +716,12 @@ function MatchCard({
   }, "✕")), /*#__PURE__*/React.createElement("div", {
     className: "p-4"
   }, played && !editing && /*#__PURE__*/React.createElement("div", {
-    className: "font-mono text-sm text-[#16213E]"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "text-base"
-  }, line), /*#__PURE__*/React.createElement("div", {
-    className: "mt-1 pt-1 border-t border-[#1B4332]/15 text-[#1B4332] font-semibold font-sans text-sm"
-  }, margin)), editing && /*#__PURE__*/React.createElement("div", {
+    className: "text-[#16213E]"
+  }, /*#__PURE__*/React.createElement(MatchResultDisplay, {
+    match: match,
+    teams: teams,
+    matchOvers: matchOvers
+  })), editing && /*#__PURE__*/React.createElement("div", {
     className: "space-y-3 bg-[#0F2C22] -m-4 p-4 rounded-b-lg mt-0"
   }, /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -729,11 +777,13 @@ function AddMatchRow({
   const [t1, setT1] = useState("");
   const [t2, setT2] = useState("");
   return /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2 bg-[#1B4332]/5 rounded p-2"
+    className: "bg-[#1B4332]/5 rounded p-2 space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
   }, /*#__PURE__*/React.createElement("select", {
     value: t1,
     onChange: e => setT1(e.target.value),
-    className: "flex-1 text-xs border border-[#1B4332]/20 rounded px-2 py-1.5"
+    className: "flex-1 min-w-0 text-xs border border-[#1B4332]/20 rounded px-2 py-1.5"
   }, /*#__PURE__*/React.createElement("option", {
     value: ""
   }, "Team A…"), teamPool.map(id => /*#__PURE__*/React.createElement("option", {
@@ -741,18 +791,18 @@ function AddMatchRow({
     value: id,
     disabled: id === t2
   }, teamName(teams, id)))), /*#__PURE__*/React.createElement("span", {
-    className: "text-[#1B4332]/40 text-xs"
+    className: "text-[#1B4332]/40 text-xs shrink-0"
   }, "vs"), /*#__PURE__*/React.createElement("select", {
     value: t2,
     onChange: e => setT2(e.target.value),
-    className: "flex-1 text-xs border border-[#1B4332]/20 rounded px-2 py-1.5"
+    className: "flex-1 min-w-0 text-xs border border-[#1B4332]/20 rounded px-2 py-1.5"
   }, /*#__PURE__*/React.createElement("option", {
     value: ""
   }, "Team B…"), teamPool.map(id => /*#__PURE__*/React.createElement("option", {
     key: id,
     value: id,
     disabled: id === t1
-  }, teamName(teams, id)))), /*#__PURE__*/React.createElement("button", {
+  }, teamName(teams, id))))), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       if (t1 && t2 && t1 !== t2) {
         onAdd(t1, t2);
@@ -761,7 +811,7 @@ function AddMatchRow({
       }
     },
     disabled: !t1 || !t2 || t1 === t2,
-    className: "bg-[#1B4332] disabled:opacity-40 text-[#F5EFDC] text-xs font-semibold px-3 py-1.5 rounded shrink-0"
+    className: "bg-[#1B4332] disabled:opacity-40 text-[#F5EFDC] text-xs font-semibold px-3 py-1.5 rounded w-full"
   }, "+ Add"));
 }
 
@@ -879,11 +929,11 @@ function GroupPanel({
   }, "✕"))), group.teamIds.length === 0 && /*#__PURE__*/React.createElement("span", {
     className: "text-[#16213E]/40 text-sm italic"
   }, "No teams yet")), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-2"
+    className: "flex flex-wrap gap-2"
   }, /*#__PURE__*/React.createElement("select", {
     value: addingTeam,
     onChange: e => setAddingTeam(e.target.value),
-    className: "flex-1 text-sm border border-[#1B4332]/20 rounded px-2 py-1.5"
+    className: "flex-1 min-w-[140px] text-sm border border-[#1B4332]/20 rounded px-2 py-1.5"
   }, /*#__PURE__*/React.createElement("option", {
     value: ""
   }, "Add a team…"), availableTeams.map(t => /*#__PURE__*/React.createElement("option", {
@@ -892,11 +942,11 @@ function GroupPanel({
   }, t.name))), /*#__PURE__*/React.createElement("button", {
     onClick: addTeam,
     disabled: !addingTeam,
-    className: "bg-[#1B4332] disabled:opacity-40 text-[#F5EFDC] text-sm font-semibold px-3 py-1.5 rounded"
+    className: "bg-[#1B4332] disabled:opacity-40 text-[#F5EFDC] text-sm font-semibold px-3 py-1.5 rounded shrink-0"
   }, "Add"), /*#__PURE__*/React.createElement("button", {
     onClick: generateFixtures,
     disabled: group.teamIds.length < 2,
-    className: "bg-[#E8A33D] disabled:opacity-40 text-[#16213E] text-sm font-semibold px-3 py-1.5 rounded whitespace-nowrap"
+    className: "bg-[#E8A33D] disabled:opacity-40 text-[#16213E] text-sm font-semibold px-3 py-1.5 rounded w-full sm:w-auto"
   }, "Add missing round-robin fixtures"))), /*#__PURE__*/React.createElement(MatchList, {
     matches: group.matches,
     teams: allTeams,
@@ -1065,8 +1115,13 @@ function OverviewPanel({
   }), /*#__PURE__*/React.createElement("div", {
     className: "mt-2 space-y-1 font-mono text-sm text-[#F5EFDC]"
   }, g.matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
-    key: m.id
-  }, resultLine(m, allTeams, season.oversPerMatch)))))), (season.groups || []).map(g => /*#__PURE__*/React.createElement("div", {
+    key: m.id,
+    className: "bg-[#0F2C22]/40 rounded p-2"
+  }, /*#__PURE__*/React.createElement(MatchResultDisplay, {
+    match: m,
+    teams: allTeams,
+    matchOvers: season.oversPerMatch
+  })))))), (season.groups || []).map(g => /*#__PURE__*/React.createElement("div", {
     key: g.id
   }, /*#__PURE__*/React.createElement("h2", {
     className: "font-display text-[#E8A33D] text-base mb-2"
@@ -1076,16 +1131,26 @@ function OverviewPanel({
   }), /*#__PURE__*/React.createElement("div", {
     className: "mt-2 space-y-1 font-mono text-sm text-[#F5EFDC]"
   }, g.matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
-    key: m.id
-  }, resultLine(m, allTeams, season.oversPerMatch)))))), (season.knockoutRounds || []).map(r => /*#__PURE__*/React.createElement("div", {
+    key: m.id,
+    className: "bg-[#0F2C22]/40 rounded p-2"
+  }, /*#__PURE__*/React.createElement(MatchResultDisplay, {
+    match: m,
+    teams: allTeams,
+    matchOvers: season.oversPerMatch
+  })))))), (season.knockoutRounds || []).map(r => /*#__PURE__*/React.createElement("div", {
     key: r.id
   }, /*#__PURE__*/React.createElement("h2", {
     className: "font-display text-[#E8A33D] text-base mb-2"
   }, r.name), /*#__PURE__*/React.createElement("div", {
     className: "space-y-1 font-mono text-sm text-[#F5EFDC]"
   }, r.matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
-    key: m.id
-  }, resultLine(m, allTeams, season.oversPerMatch)))))), preQualLines.length === 0 && groupLines.length === 0 && koLines.length === 0 && /*#__PURE__*/React.createElement("p", {
+    key: m.id,
+    className: "bg-[#0F2C22]/40 rounded p-2"
+  }, /*#__PURE__*/React.createElement(MatchResultDisplay, {
+    match: m,
+    teams: allTeams,
+    matchOvers: season.oversPerMatch
+  })))))), preQualLines.length === 0 && groupLines.length === 0 && koLines.length === 0 && /*#__PURE__*/React.createElement("p", {
     className: "text-[#F5EFDC]/60 text-sm italic"
   }, "Nothing recorded yet — add teams and fixtures to see the summary here."));
 }
