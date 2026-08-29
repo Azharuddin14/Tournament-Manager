@@ -282,6 +282,35 @@ function getChampionInfo(season) {
   };
 }
 
+// did this team play in the semi-final round (second-to-last knockout round)
+// this season, regardless of naming ("Semis", "Semi-Final", etc.) or outcome?
+function reachedSemis(season, teamId) {
+  const rounds = season.knockoutRounds || [];
+  if (rounds.length < 2) return false;
+  const semiRound = rounds[rounds.length - 2];
+  return semiRound.matches.some(m => m.team1Id === teamId || m.team2Id === teamId);
+}
+
+// career totals used for sorting/ranking teams across every saved season
+function getOverallStageCounts(seasons, teamId) {
+  let championships = 0,
+    runnerUps = 0,
+    semis = 0;
+  seasons.forEach(season => {
+    const info = getChampionInfo(season);
+    if (info) {
+      if (info.championId === teamId) championships++;
+      if (info.runnerUpId === teamId) runnerUps++;
+    }
+    if (reachedSemis(season, teamId)) semis++;
+  });
+  return {
+    championships,
+    runnerUps,
+    semis
+  };
+}
+
 // the furthest stage a team reached in a season's knockouts (rounds are plain,
 // user-named, in order — no bracket math needed)
 function getStageReached(season, teamId) {
@@ -1213,6 +1242,7 @@ function TeamProfile({
 }) {
   const records = seasons.map(s => getTeamRecordInSeason(s, team.id)).filter(Boolean);
   const overall = getOverallAndH2H(seasons, team.id);
+  const stageCounts = getOverallStageCounts(seasons, team.id);
   return /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1233,7 +1263,9 @@ function TeamProfile({
     className: "text-[10px] uppercase tracking-widest text-[#16213E]/50 font-semibold mb-2"
   }, "Overall record · all seasons"), /*#__PURE__*/React.createElement("div", {
     className: "text-sm font-mono text-[#16213E]"
-  }, "Played ", overall.played, " · Won ", overall.won, " · Lost ", overall.lost, overall.tied ? ` · Tied ${overall.tied}` : "")), /*#__PURE__*/React.createElement("ul", {
+  }, "Played ", overall.played, " · Won ", overall.won, " · Lost ", overall.lost, overall.tied ? ` · Tied ${overall.tied}` : ""), /*#__PURE__*/React.createElement("div", {
+    className: "text-sm font-mono text-[#16213E] mt-1"
+  }, "🏆 Championships ", stageCounts.championships, " · 🥈 Runner-ups ", stageCounts.runnerUps, " · 🥉 Semis ", stageCounts.semis)), /*#__PURE__*/React.createElement("ul", {
     className: "space-y-2"
   }, records.map((rec, i) => /*#__PURE__*/React.createElement("li", {
     key: i,
@@ -1273,6 +1305,15 @@ function TeamManagerScreen({
   const [viewingId, setViewingId] = useState(null);
   const viewingTeam = teams.find(t => t.id === viewingId);
   const editingTeam = teams.find(t => t.id === editingId);
+
+  // rank: championships, then runner-ups, then semis, then matches won, then matches played
+  const rankedTeams = [...teams].sort((a, b) => {
+    const sa = getOverallStageCounts(seasons, a.id);
+    const sb = getOverallStageCounts(seasons, b.id);
+    const oa = getOverallAndH2H(seasons, a.id);
+    const ob = getOverallAndH2H(seasons, b.id);
+    return sb.championships - sa.championships || sb.runnerUps - sa.runnerUps || sb.semis - sa.semis || ob.won - oa.won || ob.played - oa.played;
+  });
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen bg-[#0F2C22]",
     style: {
@@ -1312,23 +1353,30 @@ function TeamManagerScreen({
     className: "text-[#F5EFDC]/50 text-sm italic px-1"
   }, "No teams yet — add your franchises above.") : /*#__PURE__*/React.createElement("ul", {
     className: "space-y-2"
-  }, teams.map(t => /*#__PURE__*/React.createElement("li", {
-    key: t.id,
-    className: "bg-[#F5EFDC] rounded-lg p-3 flex items-center justify-between"
-  }, /*#__PURE__*/React.createElement(TeamBadge, {
-    team: t
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-3 shrink-0"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setViewingId(t.id),
-    className: "text-[#1B4332] text-xs font-semibold underline"
-  }, "Performance"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setEditingId(t.id),
-    className: "text-[#1B4332] text-xs font-semibold underline"
-  }, "Edit"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => onDeleteTeam(t.id),
-    className: "text-[#C1443C] text-xs font-semibold"
-  }, "Delete"))))))));
+  }, rankedTeams.map(t => {
+    const sc = getOverallStageCounts(seasons, t.id);
+    return /*#__PURE__*/React.createElement("li", {
+      key: t.id,
+      className: "bg-[#F5EFDC] rounded-lg p-3 flex items-center justify-between flex-wrap gap-2"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-2"
+    }, /*#__PURE__*/React.createElement(TeamBadge, {
+      team: t
+    }), sc.championships > 0 && /*#__PURE__*/React.createElement("span", {
+      className: "text-xs text-[#16213E]/60"
+    }, "🏆×", sc.championships)), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-3 shrink-0"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => setViewingId(t.id),
+      className: "text-[#1B4332] text-xs font-semibold underline"
+    }, "Performance"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => setEditingId(t.id),
+      className: "text-[#1B4332] text-xs font-semibold underline"
+    }, "Edit"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => onDeleteTeam(t.id),
+      className: "text-[#C1443C] text-xs font-semibold"
+    }, "Delete")));
+  })))));
 }
 
 // ============================================================
@@ -1549,6 +1597,7 @@ function App() {
   const [activeSeasonId, setActiveSeasonId] = useState(null);
   const [newSeasonName, setNewSeasonName] = useState("");
   const [newSeasonOvers, setNewSeasonOvers] = useState(20);
+  const [dragSeasonIdx, setDragSeasonIdx] = useState(null);
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
@@ -1598,6 +1647,12 @@ function App() {
     setState(s => ({
       ...s,
       seasons: s.seasons.map(x => x.id === updated.id ? updated : x)
+    }));
+  }
+  function reorderSeasons(fromIdx, toIdx) {
+    setState(s => ({
+      ...s,
+      seasons: reorder(s.seasons, fromIdx, toIdx)
     }));
   }
   if (screen === "teams") {
@@ -1670,13 +1725,24 @@ function App() {
     className: "text-[#F5EFDC]/50 text-sm italic px-1"
   }, "No seasons yet — create one above to get started.") : /*#__PURE__*/React.createElement("ul", {
     className: "space-y-3"
-  }, state.seasons.map(s => {
+  }, state.seasons.map((s, idx) => {
     const info = getChampionInfo(s);
     return /*#__PURE__*/React.createElement("li", {
       key: s.id,
-      className: "bg-[#F5EFDC] rounded-lg p-4 flex items-center justify-between gap-3"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "min-w-0"
+      className: "bg-[#F5EFDC] rounded-lg p-4 flex items-center gap-2",
+      onDragOver: e => e.preventDefault(),
+      onDrop: () => {
+        if (dragSeasonIdx !== null && dragSeasonIdx !== idx) reorderSeasons(dragSeasonIdx, idx);
+        setDragSeasonIdx(null);
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      draggable: true,
+      onDragStart: () => setDragSeasonIdx(idx),
+      onDragEnd: () => setDragSeasonIdx(null),
+      title: "Drag to reorder",
+      className: "cursor-move select-none text-[#16213E]/30 hover:text-[#1B4332] text-base leading-none shrink-0"
+    }, "⠿"), /*#__PURE__*/React.createElement("div", {
+      className: "min-w-0 flex-1"
     }, /*#__PURE__*/React.createElement("div", {
       className: "font-display text-lg text-[#16213E] truncate"
     }, s.name), /*#__PURE__*/React.createElement("div", {
