@@ -256,6 +256,162 @@ function getMomTally(season) {
   })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
+// MOM tally across every saved season
+function getMomTallyAllSeasons(seasons) {
+  const counts = {};
+  seasons.forEach(season => {
+    allSeasonMatches(season).forEach(m => {
+      const name = extractMomName(m.mom);
+      if (!name) return;
+      counts[name] = (counts[name] || 0) + 1;
+    });
+  });
+  return Object.entries(counts).map(([name, count]) => ({
+    name,
+    count
+  })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+// pulls a batting figure like "58(45)" or "81*(45)" out of a MOM line, if present
+function extractMomBatting(momText) {
+  if (!momText) return null;
+  const m = momText.match(/(\d+)(\*?)\((\d+)(?:\.\d+)?\)/);
+  if (!m) return null;
+  return {
+    runs: parseInt(m[1], 10),
+    balls: parseInt(m[3], 10),
+    notOut: m[2] === "*"
+  };
+}
+
+// pulls a bowling figure like "4/25" out of a MOM line, if present
+function extractMomBowling(momText) {
+  if (!momText) return null;
+  const m = momText.match(/(\d+)\/(\d+)/);
+  if (!m) return null;
+  return {
+    wickets: parseInt(m[1], 10),
+    runs: parseInt(m[2], 10)
+  };
+}
+
+// every completed innings across the given seasons, tagged with team/opponent/
+// season/stage — the raw material for the "top scores" style records below
+function getAllInnings(seasons, teamFilter) {
+  const innings = [];
+  seasons.forEach(season => {
+    const addFrom = (matches, stage) => {
+      matches.forEach(m => {
+        if (!isPlayed(m)) return;
+        const firstId = m.battingFirstId || m.team1Id;
+        const secondId = firstId === m.team1Id ? m.team2Id : m.team1Id;
+        const firstScore = firstId === m.team1Id ? m.score1 : m.score2;
+        const secondScore = firstId === m.team1Id ? m.score2 : m.score1;
+        const winnerId = getWinnerId(m);
+        const push = (teamId, oppId, score, chasing) => {
+          if (teamFilter && teamId !== teamFilter) return;
+          innings.push({
+            teamId,
+            oppId,
+            score,
+            matchOvers: season.oversPerMatch,
+            seasonName: season.name,
+            stage,
+            chasing,
+            won: winnerId === teamId,
+            complete: !!score.allOut || oversForNRR(score, season.oversPerMatch) >= season.oversPerMatch
+          });
+        };
+        push(firstId, secondId, firstScore, false);
+        push(secondId, firstId, secondScore, true);
+      });
+    };
+    (season.preQualGroups || []).forEach(g => addFrom(g.matches, `Pre-Qual: ${g.name}`));
+    (season.groups || []).forEach(g => addFrom(g.matches, `Group ${g.name}`));
+    (season.knockoutRounds || []).forEach(r => addFrom(r.matches, r.name));
+  });
+  return innings;
+}
+function formatInningsScore(score, matchOvers) {
+  return formatScore(score, matchOvers);
+}
+
+// top N highest completed innings totals (excludes innings cut short by a
+// successful chase, since those don't reflect the team's actual ceiling)
+function getTopScores(seasons, n, teamFilter) {
+  return getAllInnings(seasons, teamFilter).filter(i => i.complete).sort((a, b) => Number(b.score.runs) - Number(a.score.runs)).slice(0, n);
+}
+
+// lowest N completed innings totals, same exclusion as above
+function getLowScores(seasons, n, teamFilter) {
+  return getAllInnings(seasons, teamFilter).filter(i => i.complete).sort((a, b) => Number(a.score.runs) - Number(b.score.runs)).slice(0, n);
+}
+
+// top N successful run chases, ranked by the size of the target actually chased down
+function getTopChases(seasons, n, teamFilter) {
+  return getAllInnings(seasons, teamFilter).filter(i => i.chasing && i.won).sort((a, b) => Number(b.score.runs) - Number(a.score.runs)).slice(0, n);
+}
+
+// top N individual batting performances pulled out of MOM entries
+function getTopMomBatting(seasons, n, teamFilter) {
+  const rows = [];
+  seasons.forEach(season => {
+    const addFrom = (matches, stage) => {
+      matches.forEach(m => {
+        if (!isPlayed(m) || !m.mom) return;
+        const bat = extractMomBatting(m.mom);
+        if (!bat) return;
+        const name = extractMomName(m.mom);
+        // figure out which side the MOM performance most likely belongs to isn't
+        // knowable from text alone, so this is credited to the match generally
+        // (team affiliation shown as "in this match", not attributed to one side)
+        if (teamFilter && m.team1Id !== teamFilter && m.team2Id !== teamFilter) return;
+        rows.push({
+          name,
+          runs: bat.runs,
+          balls: bat.balls,
+          notOut: bat.notOut,
+          seasonName: season.name,
+          stage,
+          match: m
+        });
+      });
+    };
+    (season.preQualGroups || []).forEach(g => addFrom(g.matches, `Pre-Qual: ${g.name}`));
+    (season.groups || []).forEach(g => addFrom(g.matches, `Group ${g.name}`));
+    (season.knockoutRounds || []).forEach(r => addFrom(r.matches, r.name));
+  });
+  return rows.sort((a, b) => b.runs - a.runs).slice(0, n);
+}
+
+// top N individual bowling performances pulled out of MOM entries
+function getTopMomBowling(seasons, n, teamFilter) {
+  const rows = [];
+  seasons.forEach(season => {
+    const addFrom = (matches, stage) => {
+      matches.forEach(m => {
+        if (!isPlayed(m) || !m.mom) return;
+        const bowl = extractMomBowling(m.mom);
+        if (!bowl) return;
+        const name = extractMomName(m.mom);
+        if (teamFilter && m.team1Id !== teamFilter && m.team2Id !== teamFilter) return;
+        rows.push({
+          name,
+          wickets: bowl.wickets,
+          runs: bowl.runs,
+          seasonName: season.name,
+          stage,
+          match: m
+        });
+      });
+    };
+    (season.preQualGroups || []).forEach(g => addFrom(g.matches, `Pre-Qual: ${g.name}`));
+    (season.groups || []).forEach(g => addFrom(g.matches, `Group ${g.name}`));
+    (season.knockoutRounds || []).forEach(r => addFrom(r.matches, r.name));
+  });
+  return rows.sort((a, b) => b.wickets - a.wickets || a.runs - b.runs).slice(0, n);
+}
+
 // champion / runner-up / semi-finalists for a season, derived from the (user-named,
 // user-ordered) knockout rounds — last round is the Final, one before it the Semis
 function getChampionInfo(season) {
@@ -1435,6 +1591,185 @@ function AwardsSection({
 }
 
 // ============================================================
+// Pitchside — Records (global top-10 and team-wise top-5)
+// ============================================================
+
+function InningsRecordRow({
+  row,
+  allTeams,
+  rank
+}) {
+  return /*#__PURE__*/React.createElement("li", {
+    className: "flex items-center justify-between px-4 py-2.5 border-b border-[#1B4332]/10 last:border-0 gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 min-w-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[#16213E]/40 font-mono text-xs w-4 shrink-0"
+  }, rank), /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, row.teamId),
+    size: 11
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-sm text-[#16213E] shrink-0"
+  }, formatInningsScore(row.score, row.matchOvers))), /*#__PURE__*/React.createElement("div", {
+    className: "text-right text-[10px] text-[#16213E]/50 leading-tight shrink-0"
+  }, /*#__PURE__*/React.createElement("div", null, "v ", teamName(allTeams, row.oppId)), /*#__PURE__*/React.createElement("div", null, row.seasonName, " · ", row.stage)));
+}
+function MomBattingRow({
+  row,
+  rank
+}) {
+  return /*#__PURE__*/React.createElement("li", {
+    className: "flex items-center justify-between px-4 py-2.5 border-b border-[#1B4332]/10 last:border-0 gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 min-w-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[#16213E]/40 font-mono text-xs w-4 shrink-0"
+  }, rank), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-[#16213E] truncate"
+  }, row.name)), /*#__PURE__*/React.createElement("div", {
+    className: "text-right shrink-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-mono text-sm text-[#16213E]"
+  }, row.runs, row.notOut ? "*" : "", "(", row.balls, ")"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-[#16213E]/50"
+  }, row.seasonName, " · ", row.stage)));
+}
+function MomBowlingRow({
+  row,
+  rank
+}) {
+  return /*#__PURE__*/React.createElement("li", {
+    className: "flex items-center justify-between px-4 py-2.5 border-b border-[#1B4332]/10 last:border-0 gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 min-w-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[#16213E]/40 font-mono text-xs w-4 shrink-0"
+  }, rank), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-[#16213E] truncate"
+  }, row.name)), /*#__PURE__*/React.createElement("div", {
+    className: "text-right shrink-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-mono text-sm text-[#16213E]"
+  }, row.wickets, "/", row.runs), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-[#16213E]/50"
+  }, row.seasonName, " · ", row.stage)));
+}
+function MomCountRow({
+  row,
+  rank
+}) {
+  return /*#__PURE__*/React.createElement("li", {
+    className: "flex items-center justify-between px-4 py-2 border-b border-[#1B4332]/10 last:border-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-[#16213E]"
+  }, rank, ". ", row.name), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm font-mono font-bold text-[#1B4332]"
+  }, row.count));
+}
+function RecordBlock({
+  title,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    className: "font-display text-[#E8A33D] text-base mb-2"
+  }, title), /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg overflow-hidden"
+  }, /*#__PURE__*/React.createElement("ul", null, children)));
+}
+
+// the actual record lists — shared by both the global Records screen (n=10)
+// and a team's own Records tab (n=5, teamFilter set)
+function RecordLists({
+  seasons,
+  allTeams,
+  n,
+  teamFilter
+}) {
+  const topScores = getTopScores(seasons, n, teamFilter);
+  const lowScores = getLowScores(seasons, n, teamFilter);
+  const topChases = getTopChases(seasons, n, teamFilter);
+  const topBatting = getTopMomBatting(seasons, n, teamFilter);
+  const topBowling = getTopMomBowling(seasons, n, teamFilter);
+  const momTally = teamFilter ? [] : getMomTallyAllSeasons(seasons).slice(0, n);
+  const nothingAtAll = topScores.length === 0 && lowScores.length === 0 && topChases.length === 0 && topBatting.length === 0 && topBowling.length === 0 && momTally.length === 0;
+  if (nothingAtAll) {
+    return /*#__PURE__*/React.createElement("p", {
+      className: "text-[#F5EFDC]/50 text-sm italic"
+    }, "No completed matches yet — records will show up here once some are played.");
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "space-y-5"
+  }, topScores.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
+    title: `Top ${n} Scores`
+  }, topScores.map((row, i) => /*#__PURE__*/React.createElement(InningsRecordRow, {
+    key: i,
+    row: row,
+    allTeams: allTeams,
+    rank: i + 1
+  }))), topChases.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
+    title: `Top ${n} Successful Run Chases`
+  }, topChases.map((row, i) => /*#__PURE__*/React.createElement(InningsRecordRow, {
+    key: i,
+    row: row,
+    allTeams: allTeams,
+    rank: i + 1
+  }))), lowScores.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
+    title: `Lowest ${n} Scores`
+  }, lowScores.map((row, i) => /*#__PURE__*/React.createElement(InningsRecordRow, {
+    key: i,
+    row: row,
+    allTeams: allTeams,
+    rank: i + 1
+  }))), momTally.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
+    title: `Top ${n} Players — Man of the Match count`
+  }, momTally.map((row, i) => /*#__PURE__*/React.createElement(MomCountRow, {
+    key: row.name,
+    row: row,
+    rank: i + 1
+  }))), topBatting.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
+    title: `Top ${n} Batting Scores`
+  }, topBatting.map((row, i) => /*#__PURE__*/React.createElement(MomBattingRow, {
+    key: i,
+    row: row,
+    rank: i + 1
+  }))), topBowling.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
+    title: `Top ${n} Bowling Figures`
+  }, topBowling.map((row, i) => /*#__PURE__*/React.createElement(MomBowlingRow, {
+    key: i,
+    row: row,
+    rank: i + 1
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: "text-[#F5EFDC]/40 text-[10px] italic px-1"
+  }, "Batting/bowling records are pulled from Man of the Match entries only — they reflect notable performances recorded there, not every player's full stats."));
+}
+function RecordsScreen({
+  teams,
+  seasons,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "min-h-screen bg-[#0F2C22]",
+    style: {
+      fontFamily: "'Inter', sans-serif"
+    }
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "font-display text-3xl text-[#F5EFDC] tracking-wide"
+  }, "Records"), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
+  }, "‹ Seasons")), /*#__PURE__*/React.createElement("main", {
+    className: "max-w-2xl mx-auto px-4 py-6"
+  }, /*#__PURE__*/React.createElement(RecordLists, {
+    seasons: seasons,
+    allTeams: teams,
+    n: 10,
+    teamFilter: null
+  })));
+}
+
+// ============================================================
 // Pitchside — team roster & team profile screen
 // ============================================================
 function SeasonMatchesCard({
@@ -1506,6 +1841,7 @@ function TeamProfile({
   allTeams,
   onBack
 }) {
+  const [tab, setTab] = useState("profile");
   const seasonsWithRecords = seasons.map(s => ({
     season: s,
     record: getTeamRecordInSeason(s, team.id)
@@ -1525,7 +1861,20 @@ function TeamProfile({
   })), /*#__PURE__*/React.createElement("button", {
     onClick: onBack,
     className: "text-[#F5EFDC]/60 text-xs underline"
-  }, "‹ All teams")), seasonsWithRecords.length === 0 ? /*#__PURE__*/React.createElement("p", {
+  }, "‹ All teams")), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setTab("profile"),
+    className: `px-4 py-1.5 rounded-full text-sm font-semibold transition ${tab === "profile" ? "bg-[#E8A33D] text-[#16213E]" : "bg-[#16213E] text-[#F5EFDC]/60"}`
+  }, "Profile"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setTab("records"),
+    className: `px-4 py-1.5 rounded-full text-sm font-semibold transition ${tab === "records" ? "bg-[#E8A33D] text-[#16213E]" : "bg-[#16213E] text-[#F5EFDC]/60"}`
+  }, "Records")), tab === "records" ? /*#__PURE__*/React.createElement(RecordLists, {
+    seasons: seasons,
+    allTeams: allTeams,
+    n: 5,
+    teamFilter: team.id
+  }) : seasonsWithRecords.length === 0 ? /*#__PURE__*/React.createElement("p", {
     className: "text-[#F5EFDC]/50 text-sm italic"
   }, "This team hasn't played in any saved season yet.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "bg-[#F5EFDC] rounded-lg p-4"
@@ -1621,18 +1970,26 @@ function TeamManagerScreen({
     className: "space-y-2"
   }, rankedTeams.map(t => {
     const sc = getOverallStageCounts(seasons, t.id);
+    const overall = getOverallAndH2H(seasons, t.id);
+    const winPct = overall.played > 0 ? Math.round(overall.won / overall.played * 100) : null;
     return /*#__PURE__*/React.createElement("li", {
       key: t.id,
       className: "bg-[#F5EFDC] rounded-lg p-3 flex items-center justify-between flex-wrap gap-2"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center gap-2"
     }, /*#__PURE__*/React.createElement(TeamBadge, {
       team: t
-    }), sc.championships > 0 && /*#__PURE__*/React.createElement("span", {
-      className: "text-xs text-[#16213E]/60"
-    }, "🏆×", sc.championships)), /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center gap-3 shrink-0"
-    }, /*#__PURE__*/React.createElement("button", {
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-3 flex-wrap justify-end"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-2 text-xs text-[#16213E]/70 font-mono"
+    }, sc.championships > 0 && /*#__PURE__*/React.createElement("span", {
+      title: "Championships"
+    }, "🏆×", sc.championships), sc.runnerUps > 0 && /*#__PURE__*/React.createElement("span", {
+      title: "Runner-ups"
+    }, "🥈×", sc.runnerUps), sc.semis > 0 && /*#__PURE__*/React.createElement("span", {
+      title: "Semis"
+    }, "🥉×", sc.semis), winPct !== null && /*#__PURE__*/React.createElement("span", {
+      title: "Win %"
+    }, winPct, "% W")), /*#__PURE__*/React.createElement("button", {
       onClick: () => setViewingId(t.id),
       className: "text-[#1B4332] text-xs font-semibold underline"
     }, "Performance"), /*#__PURE__*/React.createElement("button", {
@@ -2085,6 +2442,13 @@ function App() {
       onClose: () => setScreen("home")
     }));
   }
+  if (screen === "records") {
+    return /*#__PURE__*/React.createElement(React.Fragment, null, fontStyle, /*#__PURE__*/React.createElement(RecordsScreen, {
+      teams: state.teams,
+      seasons: state.seasons,
+      onClose: () => setScreen("home")
+    }));
+  }
 
   // ---------- HOME ----------
   return /*#__PURE__*/React.createElement("div", {
@@ -2115,6 +2479,9 @@ function App() {
     onChange: handleImportFile,
     className: "hidden"
   })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setScreen("records"),
+    className: "bg-[#16213E] text-[#F5EFDC] font-semibold text-xs px-3 py-2 rounded shrink-0"
+  }, "Records"), /*#__PURE__*/React.createElement("button", {
     onClick: () => setScreen("teams"),
     className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
   }, "Manage Teams"))), /*#__PURE__*/React.createElement("main", {
