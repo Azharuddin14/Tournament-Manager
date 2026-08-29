@@ -338,17 +338,45 @@ function getStageBreakdown(seasons, teamId) {
   let championships = 0,
     runnerUps = 0,
     semis = 0,
+    quarterFinals = 0,
     groupStage = 0,
     preQuals = 0;
   seasons.forEach(season => {
-    const stage = getStageReached(season, teamId);
-    if (stage === "Did not play") return;
-    if (stage === "Winner") championships++;else if (stage === "Runner-up") runnerUps++;else if (stage === "Group stage") groupStage++;else if (stage === "Pre-Quals") preQuals++;else semis++; // any other knockout-round exit (Quarters, Semis, etc.)
+    const rounds = season.knockoutRounds || [];
+    let found = false;
+    for (let i = rounds.length - 1; i >= 0 && !found; i--) {
+      const round = rounds[i];
+      const match = round.matches.find(m => m.team1Id === teamId || m.team2Id === teamId);
+      if (!match) continue;
+      found = true;
+      if (!isPlayed(match)) break; // in progress — don't count towards a finished result yet
+      const winnerId = getWinnerId(match);
+      if (!winnerId) break; // tied with no resolution
+      const isFinal = i === rounds.length - 1;
+      if (winnerId === teamId) {
+        if (isFinal) championships++;
+        // else: shouldn't happen — a round winner would appear in the next round too,
+        // which the reverse loop would have already matched first
+      } else if (isFinal) {
+        runnerUps++;
+      } else if (i === rounds.length - 2) {
+        semis++; // lost in the actual semi-final round
+      } else {
+        quarterFinals++; // lost any earlier round
+      }
+    }
+    if (found) return;
+    if ((season.groups || []).some(g => g.teamIds.includes(teamId))) {
+      groupStage++;
+      return;
+    }
+    if ((season.preQualGroups || []).some(g => g.teamIds.includes(teamId))) preQuals++;
   });
   return {
     championships,
     runnerUps,
     semis,
+    quarterFinals,
     groupStage,
     preQuals
   };
@@ -1507,7 +1535,7 @@ function TeamProfile({
     className: "text-sm font-mono text-[#16213E]"
   }, "Played ", overall.played, " · Won ", overall.won, " · Lost ", overall.lost, overall.tied ? ` · Tied ${overall.tied}` : ""), /*#__PURE__*/React.createElement("div", {
     className: "mt-2 pt-2 border-t border-[#1B4332]/10 space-y-0.5 text-sm font-mono text-[#16213E]"
-  }, /*#__PURE__*/React.createElement("div", null, "🏆 Championships — ", breakdown.championships), /*#__PURE__*/React.createElement("div", null, "🥈 Runner-ups — ", breakdown.runnerUps), /*#__PURE__*/React.createElement("div", null, "🥉 Semis — ", breakdown.semis), /*#__PURE__*/React.createElement("div", null, "Group Stage — ", breakdown.groupStage), /*#__PURE__*/React.createElement("div", null, "Pre-Quals — ", breakdown.preQuals))), /*#__PURE__*/React.createElement(H2HList, {
+  }, /*#__PURE__*/React.createElement("div", null, "🏆 Championships — ", breakdown.championships), /*#__PURE__*/React.createElement("div", null, "🥈 Runner-ups — ", breakdown.runnerUps), /*#__PURE__*/React.createElement("div", null, "🥉 Semis — ", breakdown.semis), /*#__PURE__*/React.createElement("div", null, "Quarterfinals — ", breakdown.quarterFinals), /*#__PURE__*/React.createElement("div", null, "Group Stage — ", breakdown.groupStage), /*#__PURE__*/React.createElement("div", null, "Pre-Quals — ", breakdown.preQuals))), /*#__PURE__*/React.createElement(H2HList, {
     title: "Head-to-head · Overall",
     h2h: overall.headToHead,
     allTeams: allTeams
