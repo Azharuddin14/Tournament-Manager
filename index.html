@@ -758,7 +758,8 @@ function NumberInput({
 function TeamForm({
   initial,
   onSave,
-  onCancel
+  onCancel,
+  onDelete
 }) {
   const [name, setName] = useState(initial?.name || "");
   const [color1, setColor1] = useState(initial?.color1 || PALETTE[Math.floor(Math.random() * PALETTE.length)]);
@@ -807,7 +808,7 @@ function TeamForm({
     onChange: e => setColor2(e.target.value),
     className: "w-12 h-9 rounded border border-[#1B4332]/30"
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-2"
+    className: "flex items-center gap-2 flex-wrap"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: save,
     disabled: !name.trim(),
@@ -815,7 +816,10 @@ function TeamForm({
   }, initial ? "Save changes" : "Add team"), onCancel && /*#__PURE__*/React.createElement("button", {
     onClick: onCancel,
     className: "text-[#16213E]/60 text-sm px-4 py-2 rounded border border-[#1B4332]/20"
-  }, "Cancel")));
+  }, "Cancel"), initial && onDelete && /*#__PURE__*/React.createElement("button", {
+    onClick: onDelete,
+    className: "text-[#C1443C] text-sm font-semibold px-2 ml-auto"
+  }, "Delete team")));
 }
 
 // per-side score entry: runs always, wkts+overs hidden entirely once "All out" is ticked
@@ -1951,7 +1955,9 @@ function TeamManagerScreen({
     const sb = getStageBreakdown(seasons, b.id);
     const oa = getOverallAndH2H(seasons, a.id);
     const ob = getOverallAndH2H(seasons, b.id);
-    return sb.championships - sa.championships || sb.runnerUps - sa.runnerUps || sb.semis - sa.semis || ob.won - oa.won || ob.played - oa.played;
+    const winPctA = oa.played > 0 ? oa.won / oa.played : -1;
+    const winPctB = ob.played > 0 ? ob.won / ob.played : -1;
+    return sb.championships - sa.championships || sb.runnerUps - sa.runnerUps || sb.semis - sa.semis || sb.quarterFinals - sa.quarterFinals || sb.groupStage - sa.groupStage || winPctB - winPctA || ob.played - oa.played;
   });
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen bg-[#0F2C22]",
@@ -1978,7 +1984,11 @@ function TeamManagerScreen({
       onUpdateTeam(t);
       setEditingId(null);
     },
-    onCancel: () => setEditingId(null)
+    onCancel: () => setEditingId(null),
+    onDelete: () => {
+      onDeleteTeam(editingTeam.id);
+      setEditingId(null);
+    }
   }) : adding ? /*#__PURE__*/React.createElement(TeamForm, {
     onSave: t => {
       onAddTeam(t);
@@ -2022,10 +2032,7 @@ function TeamManagerScreen({
     }, "Performance"), /*#__PURE__*/React.createElement("button", {
       onClick: () => setEditingId(t.id),
       className: "text-[#1B4332] text-xs font-semibold underline"
-    }, "Edit"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => onDeleteTeam(t.id),
-      className: "text-[#C1443C] text-xs font-semibold"
-    }, "Delete"))));
+    }, "Edit"))));
   })))));
 }
 
