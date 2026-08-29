@@ -2025,6 +2025,42 @@ function App() {
       seasons: reorder(s.seasons, fromIdx, toIdx)
     }));
   }
+  function exportData() {
+    const dataStr = JSON.stringify(state, null, 2);
+    const blob = new window.Blob([dataStr], {
+      type: "application/json"
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.download = `pitchside-backup-${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+  function handleImportFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new window.FileReader();
+    reader.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        if (!parsed || !Array.isArray(parsed.teams) || !Array.isArray(parsed.seasons)) {
+          window.alert("This doesn't look like a valid Pitchside backup file.");
+          return;
+        }
+        if (!window.confirm(`Import this backup? It has ${parsed.teams.length} teams and ${parsed.seasons.length} seasons, and will REPLACE everything currently saved in this browser.`)) return;
+        setState(parsed);
+        window.alert("Backup imported successfully.");
+      } catch (err) {
+        window.alert("Could not read that file — make sure it's a Pitchside backup JSON file.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  }
   if (screen === "teams") {
     return /*#__PURE__*/React.createElement(React.Fragment, null, fontStyle, /*#__PURE__*/React.createElement(TeamManagerScreen, {
       teams: state.teams,
@@ -2057,17 +2093,31 @@ function App() {
       fontFamily: "'Inter', sans-serif"
     }
   }, fontStyle, /*#__PURE__*/React.createElement("header", {
-    className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3"
+    className: "bg-[#1B4332] border-b-4 border-[#E8A33D] px-6 py-5 flex items-center justify-between gap-3 flex-wrap"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
     className: "font-display text-3xl text-[#F5EFDC] tracking-wide"
   }, "PITCH", /*#__PURE__*/React.createElement("span", {
     className: "text-[#E8A33D]"
   }, "SIDE")), /*#__PURE__*/React.createElement("p", {
     className: "text-[#F5EFDC]/60 text-sm mt-0.5"
-  }, "Your seasons")), /*#__PURE__*/React.createElement("button", {
+  }, "Your seasons")), /*#__PURE__*/React.createElement("div", {
+    className: "flex gap-2 flex-wrap"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: exportData,
+    className: "bg-[#16213E] text-[#F5EFDC] font-semibold text-xs px-3 py-2 rounded shrink-0",
+    title: "Download a backup of all your data"
+  }, "⬇ Backup"), /*#__PURE__*/React.createElement("label", {
+    className: "bg-[#16213E] text-[#F5EFDC] font-semibold text-xs px-3 py-2 rounded shrink-0 cursor-pointer",
+    title: "Restore from a backup file"
+  }, "⬆ Restore", /*#__PURE__*/React.createElement("input", {
+    type: "file",
+    accept: "application/json",
+    onChange: handleImportFile,
+    className: "hidden"
+  })), /*#__PURE__*/React.createElement("button", {
     onClick: () => setScreen("teams"),
     className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
-  }, "Manage Teams")), /*#__PURE__*/React.createElement("main", {
+  }, "Manage Teams"))), /*#__PURE__*/React.createElement("main", {
     className: "max-w-2xl mx-auto px-4 py-6 space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-[#F5EFDC] rounded-lg p-4 flex flex-wrap gap-2 items-end"
