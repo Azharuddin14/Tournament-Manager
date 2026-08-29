@@ -379,39 +379,37 @@ function getTeamRecordInSeason(season, teamId) {
 }
 
 // overall record + opponent-wise head-to-head, across every saved season
-function getOverallAndH2H(seasons, teamId) {
+function computeRecordAndH2H(matches, teamId) {
   let played = 0,
     won = 0,
     lost = 0,
     tied = 0;
   const h2h = {};
-  seasons.forEach(season => {
-    allSeasonMatches(season).forEach(m => {
-      if (m.team1Id !== teamId && m.team2Id !== teamId) return;
-      if (!isPlayed(m)) return;
-      const oppId = m.team1Id === teamId ? m.team2Id : m.team1Id;
-      if (!oppId) return;
-      if (!h2h[oppId]) h2h[oppId] = {
-        id: oppId,
-        played: 0,
-        won: 0,
-        lost: 0,
-        tied: 0
-      };
-      played++;
-      h2h[oppId].played++;
-      const w = getWinnerId(m);
-      if (!w) {
-        tied++;
-        h2h[oppId].tied++;
-      } else if (w === teamId) {
-        won++;
-        h2h[oppId].won++;
-      } else {
-        lost++;
-        h2h[oppId].lost++;
-      }
-    });
+  matches.forEach(m => {
+    if (m.team1Id !== teamId && m.team2Id !== teamId) return;
+    if (!isPlayed(m)) return;
+    const oppId = m.team1Id === teamId ? m.team2Id : m.team1Id;
+    if (!oppId) return;
+    if (!h2h[oppId]) h2h[oppId] = {
+      id: oppId,
+      played: 0,
+      won: 0,
+      lost: 0,
+      tied: 0
+    };
+    played++;
+    h2h[oppId].played++;
+    const w = getWinnerId(m);
+    if (!w) {
+      tied++;
+      h2h[oppId].tied++;
+    } else if (w === teamId) {
+      won++;
+      h2h[oppId].won++;
+    } else {
+      lost++;
+      h2h[oppId].lost++;
+    }
   });
   const headToHead = Object.values(h2h).sort((a, b) => b.played - a.played || b.won - a.won);
   return {
@@ -421,6 +419,26 @@ function getOverallAndH2H(seasons, teamId) {
     tied,
     headToHead
   };
+}
+
+// overall record + opponent-wise head-to-head, across every saved season, every stage
+function getOverallAndH2H(seasons, teamId) {
+  const matches = [];
+  seasons.forEach(season => matches.push(...allSeasonMatches(season)));
+  return computeRecordAndH2H(matches, teamId);
+}
+
+// same, but counting only knockout-stage matches (Pre-Quals/Groups excluded)
+function getKnockoutH2H(seasons, teamId) {
+  const matches = [];
+  seasons.forEach(season => (season.knockoutRounds || []).forEach(r => matches.push(...r.matches)));
+  return computeRecordAndH2H(matches, teamId);
+}
+
+// a team's matches within one season, in the order they were actually played
+// (Pre-Quals, then Groups, then Knockouts)
+function getTeamMatchesInSeason(season, teamId) {
+  return allSeasonMatches(season).filter(m => m.team1Id === teamId || m.team2Id === teamId);
 }
 function generateRoundRobin(teamIds) {
   const matches = [];
@@ -1258,14 +1276,76 @@ function OverviewPanel({
 // ============================================================
 // Pitchside — team roster & team profile screen
 // ============================================================
+function SeasonMatchesCard({
+  season,
+  record,
+  team,
+  allTeams
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const matches = expanded ? getTeamMatchesInSeason(season, team.id) : [];
+  return /*#__PURE__*/React.createElement("li", {
+    className: "bg-[#F5EFDC] rounded-lg p-4"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setExpanded(v => !v),
+    className: "w-full text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-display text-[#1B4332] text-base"
+  }, record.seasonName), /*#__PURE__*/React.createElement("span", {
+    className: "text-[#1B4332]/50 text-xs"
+  }, expanded ? "▾ Hide matches" : "▸ Show matches")), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-mono text-[#16213E]/70 mt-1"
+  }, "Played ", record.played, " · Won ", record.won, " · Lost ", record.lost, record.tied ? ` · Tied ${record.tied}` : ""), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] uppercase tracking-wide text-[#1B4332]/60 font-semibold mt-1.5"
+  }, "Highest stage: ", record.stage)), expanded && /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 pt-3 border-t border-[#1B4332]/10 space-y-2"
+  }, matches.filter(isPlayed).length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "text-[#16213E]/40 text-xs italic"
+  }, "No completed matches yet.") : matches.filter(isPlayed).map(m => /*#__PURE__*/React.createElement("div", {
+    key: m.id,
+    className: "bg-[#1B4332]/5 rounded p-2 text-[#16213E]"
+  }, /*#__PURE__*/React.createElement(MatchResultDisplay, {
+    match: m,
+    teams: allTeams,
+    matchOvers: season.oversPerMatch
+  })))));
+}
+function H2HList({
+  title,
+  h2h,
+  allTeams
+}) {
+  if (h2h.length === 0) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg overflow-hidden"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "px-4 py-3 border-b border-[#1B4332]/10 text-[10px] uppercase tracking-widest text-[#16213E]/50 font-semibold"
+  }, title), /*#__PURE__*/React.createElement("ul", null, h2h.map(h => /*#__PURE__*/React.createElement("li", {
+    key: h.id,
+    className: "flex items-center justify-between px-4 py-2 border-b border-[#1B4332]/10 last:border-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-[#16213E]"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, h.id),
+    size: 10
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-mono text-[#16213E]/70"
+  }, "P", h.played, " · W", h.won, " · L", h.lost, h.tied ? ` · T${h.tied}` : "")))));
+}
 function TeamProfile({
   team,
   seasons,
   allTeams,
   onBack
 }) {
-  const records = seasons.map(s => getTeamRecordInSeason(s, team.id)).filter(Boolean);
+  const seasonsWithRecords = seasons.map(s => ({
+    season: s,
+    record: getTeamRecordInSeason(s, team.id)
+  })).filter(x => x.record);
   const overall = getOverallAndH2H(seasons, team.id);
+  const knockoutH2H = getKnockoutH2H(seasons, team.id);
   const breakdown = getStageBreakdown(seasons, team.id);
   return /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
@@ -1279,7 +1359,7 @@ function TeamProfile({
   })), /*#__PURE__*/React.createElement("button", {
     onClick: onBack,
     className: "text-[#F5EFDC]/60 text-xs underline"
-  }, "‹ All teams")), records.length === 0 ? /*#__PURE__*/React.createElement("p", {
+  }, "‹ All teams")), seasonsWithRecords.length === 0 ? /*#__PURE__*/React.createElement("p", {
     className: "text-[#F5EFDC]/50 text-sm italic"
   }, "This team hasn't played in any saved season yet.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "bg-[#F5EFDC] rounded-lg p-4"
@@ -1289,32 +1369,28 @@ function TeamProfile({
     className: "text-sm font-mono text-[#16213E]"
   }, "Played ", overall.played, " · Won ", overall.won, " · Lost ", overall.lost, overall.tied ? ` · Tied ${overall.tied}` : ""), /*#__PURE__*/React.createElement("div", {
     className: "mt-2 pt-2 border-t border-[#1B4332]/10 space-y-0.5 text-sm font-mono text-[#16213E]"
-  }, /*#__PURE__*/React.createElement("div", null, "🏆 Championships — ", breakdown.championships), /*#__PURE__*/React.createElement("div", null, "🥈 Runner-ups — ", breakdown.runnerUps), /*#__PURE__*/React.createElement("div", null, "🥉 Semis — ", breakdown.semis), /*#__PURE__*/React.createElement("div", null, "Group Stage — ", breakdown.groupStage), /*#__PURE__*/React.createElement("div", null, "Pre-Quals — ", breakdown.preQuals))), /*#__PURE__*/React.createElement("ul", {
+  }, /*#__PURE__*/React.createElement("div", null, "🏆 Championships — ", breakdown.championships), /*#__PURE__*/React.createElement("div", null, "🥈 Runner-ups — ", breakdown.runnerUps), /*#__PURE__*/React.createElement("div", null, "🥉 Semis — ", breakdown.semis), /*#__PURE__*/React.createElement("div", null, "Group Stage — ", breakdown.groupStage), /*#__PURE__*/React.createElement("div", null, "Pre-Quals — ", breakdown.preQuals))), /*#__PURE__*/React.createElement(H2HList, {
+    title: "Head-to-head · Overall",
+    h2h: overall.headToHead,
+    allTeams: allTeams
+  }), /*#__PURE__*/React.createElement(H2HList, {
+    title: "Head-to-head (Knockouts only)",
+    h2h: knockoutH2H.headToHead,
+    allTeams: allTeams
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[#E8A33D] text-xs uppercase tracking-wide font-semibold mb-2 px-1"
+  }, "Season-wise performance"), /*#__PURE__*/React.createElement("ul", {
     className: "space-y-2"
-  }, records.map((rec, i) => /*#__PURE__*/React.createElement("li", {
+  }, seasonsWithRecords.map(({
+    season,
+    record
+  }, i) => /*#__PURE__*/React.createElement(SeasonMatchesCard, {
     key: i,
-    className: "bg-[#F5EFDC] rounded-lg p-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "font-display text-[#1B4332] text-base"
-  }, rec.seasonName), /*#__PURE__*/React.createElement("div", {
-    className: "text-xs font-mono text-[#16213E]/70 mt-1"
-  }, "Played ", rec.played, " · Won ", rec.won, " · Lost ", rec.lost, rec.tied ? ` · Tied ${rec.tied}` : ""), /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] uppercase tracking-wide text-[#1B4332]/60 font-semibold mt-1.5"
-  }, "Highest stage: ", rec.stage)))), overall.headToHead.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "bg-[#F5EFDC] rounded-lg overflow-hidden"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "px-4 py-3 border-b border-[#1B4332]/10 text-[10px] uppercase tracking-widest text-[#16213E]/50 font-semibold"
-  }, "Head-to-head"), /*#__PURE__*/React.createElement("ul", null, overall.headToHead.map(h => /*#__PURE__*/React.createElement("li", {
-    key: h.id,
-    className: "flex items-center justify-between px-4 py-2 border-b border-[#1B4332]/10 last:border-0"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-sm text-[#16213E]"
-  }, /*#__PURE__*/React.createElement(TeamBadge, {
-    team: getTeam(allTeams, h.id),
-    size: 10
-  })), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-mono text-[#16213E]/70"
-  }, "P", h.played, " · W", h.won, " · L", h.lost, h.tied ? ` · T${h.tied}` : "")))))));
+    season: season,
+    record: record,
+    team: team,
+    allTeams: allTeams
+  }))))));
 }
 function TeamManagerScreen({
   teams,
