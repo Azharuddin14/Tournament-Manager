@@ -1623,12 +1623,16 @@ function InningsRecordRow({
   }), /*#__PURE__*/React.createElement("span", {
     className: "font-mono text-sm text-[#16213E] shrink-0"
   }, formatInningsScore(row.score, row.matchOvers))), /*#__PURE__*/React.createElement("div", {
-    className: "text-right text-[10px] text-[#16213E]/50 leading-tight shrink-0 w-28"
+    className: "flex items-center gap-3 text-[10px] text-[#16213E]/50 shrink-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-right truncate w-16 shrink-0"
+  }, teamName(allTeams, row.oppId)), /*#__PURE__*/React.createElement("div", {
+    className: "text-right leading-tight w-20 shrink-0"
   }, /*#__PURE__*/React.createElement("div", {
     className: "truncate"
-  }, "v ", teamName(allTeams, row.oppId)), /*#__PURE__*/React.createElement("div", {
+  }, row.seasonName), /*#__PURE__*/React.createElement("div", {
     className: "truncate"
-  }, row.seasonName, " · ", row.stage)));
+  }, row.stage))));
 }
 function MomBattingRow({
   row,
