@@ -353,27 +353,29 @@ function getTopChases(seasons, n, teamFilter) {
 }
 
 // top N individual batting performances pulled out of MOM entries
+// top N individual batting performances pulled out of MOM entries — MOM always
+// belongs to a player on the winning side, so each performance is attributed
+// to whichever team actually won that match
 function getTopMomBatting(seasons, n, teamFilter) {
   const rows = [];
   seasons.forEach(season => {
     const addFrom = (matches, stage) => {
       matches.forEach(m => {
         if (!isPlayed(m) || !m.mom) return;
+        const winnerId = getWinnerId(m);
+        if (!winnerId) return; // tie — can't attribute to a side
+        if (teamFilter && winnerId !== teamFilter) return;
         const bat = extractMomBatting(m.mom);
         if (!bat) return;
         const name = extractMomName(m.mom);
-        // figure out which side the MOM performance most likely belongs to isn't
-        // knowable from text alone, so this is credited to the match generally
-        // (team affiliation shown as "in this match", not attributed to one side)
-        if (teamFilter && m.team1Id !== teamFilter && m.team2Id !== teamFilter) return;
         rows.push({
           name,
+          teamId: winnerId,
           runs: bat.runs,
           balls: bat.balls,
           notOut: bat.notOut,
           seasonName: season.name,
-          stage,
-          match: m
+          stage
         });
       });
     };
@@ -391,17 +393,19 @@ function getTopMomBowling(seasons, n, teamFilter) {
     const addFrom = (matches, stage) => {
       matches.forEach(m => {
         if (!isPlayed(m) || !m.mom) return;
+        const winnerId = getWinnerId(m);
+        if (!winnerId) return;
+        if (teamFilter && winnerId !== teamFilter) return;
         const bowl = extractMomBowling(m.mom);
         if (!bowl) return;
         const name = extractMomName(m.mom);
-        if (teamFilter && m.team1Id !== teamFilter && m.team2Id !== teamFilter) return;
         rows.push({
           name,
+          teamId: winnerId,
           wickets: bowl.wickets,
           runs: bowl.runs,
           seasonName: season.name,
-          stage,
-          match: m
+          stage
         });
       });
     };
@@ -1616,7 +1620,8 @@ function InningsRecordRow({
 }
 function MomBattingRow({
   row,
-  rank
+  rank,
+  allTeams
 }) {
   return /*#__PURE__*/React.createElement("li", {
     className: "flex items-center justify-between px-4 py-2.5 border-b border-[#1B4332]/10 last:border-0 gap-2"
@@ -1624,7 +1629,10 @@ function MomBattingRow({
     className: "flex items-center gap-2 min-w-0"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-[#16213E]/40 font-mono text-xs w-4 shrink-0"
-  }, rank), /*#__PURE__*/React.createElement("span", {
+  }, rank), /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, row.teamId),
+    size: 11
+  }), /*#__PURE__*/React.createElement("span", {
     className: "text-sm text-[#16213E] truncate"
   }, row.name)), /*#__PURE__*/React.createElement("div", {
     className: "text-right shrink-0"
@@ -1636,7 +1644,8 @@ function MomBattingRow({
 }
 function MomBowlingRow({
   row,
-  rank
+  rank,
+  allTeams
 }) {
   return /*#__PURE__*/React.createElement("li", {
     className: "flex items-center justify-between px-4 py-2.5 border-b border-[#1B4332]/10 last:border-0 gap-2"
@@ -1644,7 +1653,10 @@ function MomBowlingRow({
     className: "flex items-center gap-2 min-w-0"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-[#16213E]/40 font-mono text-xs w-4 shrink-0"
-  }, rank), /*#__PURE__*/React.createElement("span", {
+  }, rank), /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, row.teamId),
+    size: 11
+  }), /*#__PURE__*/React.createElement("span", {
     className: "text-sm text-[#16213E] truncate"
   }, row.name)), /*#__PURE__*/React.createElement("div", {
     className: "text-right shrink-0"
@@ -1731,16 +1743,18 @@ function RecordLists({
   }, topBatting.map((row, i) => /*#__PURE__*/React.createElement(MomBattingRow, {
     key: i,
     row: row,
-    rank: i + 1
+    rank: i + 1,
+    allTeams: allTeams
   }))), topBowling.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
     title: `Top ${n} Bowling Figures`
   }, topBowling.map((row, i) => /*#__PURE__*/React.createElement(MomBowlingRow, {
     key: i,
     row: row,
-    rank: i + 1
+    rank: i + 1,
+    allTeams: allTeams
   }))), /*#__PURE__*/React.createElement("p", {
     className: "text-[#F5EFDC]/40 text-[10px] italic px-1"
-  }, "Batting/bowling records are pulled from Man of the Match entries only — they reflect notable performances recorded there, not every player's full stats."));
+  }, "Batting/bowling records are pulled from Man of the Match entries only, attributed to the winning team."));
 }
 function RecordsScreen({
   teams,
@@ -1974,11 +1988,11 @@ function TeamManagerScreen({
     const winPct = overall.played > 0 ? Math.round(overall.won / overall.played * 100) : null;
     return /*#__PURE__*/React.createElement("li", {
       key: t.id,
-      className: "bg-[#F5EFDC] rounded-lg p-3 flex items-center justify-between flex-wrap gap-2"
+      className: "bg-[#F5EFDC] rounded-lg p-3 space-y-1.5"
     }, /*#__PURE__*/React.createElement(TeamBadge, {
       team: t
     }), /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center gap-3 flex-wrap justify-end"
+      className: "flex items-center justify-between gap-2 flex-wrap"
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-center gap-2 text-xs text-[#16213E]/70 font-mono"
     }, sc.championships > 0 && /*#__PURE__*/React.createElement("span", {
@@ -1989,7 +2003,9 @@ function TeamManagerScreen({
       title: "Semis"
     }, "🥉×", sc.semis), winPct !== null && /*#__PURE__*/React.createElement("span", {
       title: "Win %"
-    }, winPct, "% W")), /*#__PURE__*/React.createElement("button", {
+    }, winPct, "% W")), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-3 shrink-0"
+    }, /*#__PURE__*/React.createElement("button", {
       onClick: () => setViewingId(t.id),
       className: "text-[#1B4332] text-xs font-semibold underline"
     }, "Performance"), /*#__PURE__*/React.createElement("button", {
@@ -1998,7 +2014,7 @@ function TeamManagerScreen({
     }, "Edit"), /*#__PURE__*/React.createElement("button", {
       onClick: () => onDeleteTeam(t.id),
       className: "text-[#C1443C] text-xs font-semibold"
-    }, "Delete")));
+    }, "Delete"))));
   })))));
 }
 
