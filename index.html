@@ -2008,12 +2008,11 @@ function TeamManagerScreen({
     const winPct = overall.played > 0 ? Math.round(overall.won / overall.played * 100) : null;
     return /*#__PURE__*/React.createElement("li", {
       key: t.id,
-      className: "bg-[#F5EFDC] rounded-lg p-3 space-y-1.5"
+      className: "bg-[#F5EFDC] rounded-lg p-3 flex items-center gap-2"
     }, /*#__PURE__*/React.createElement(TeamBadge, {
-      team: t
+      team: t,
+      nameClassName: "truncate w-16 shrink-0"
     }), /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center justify-between gap-2"
-    }, /*#__PURE__*/React.createElement("div", {
       className: "grid grid-cols-4 gap-1 text-xs text-[#16213E]/70 font-mono w-40 shrink-0"
     }, /*#__PURE__*/React.createElement("span", {
       title: "Championships"
@@ -2025,14 +2024,14 @@ function TeamManagerScreen({
       title: "Win %",
       className: "text-right"
     }, winPct !== null ? `${winPct}%` : "")), /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center gap-3 shrink-0"
+      className: "flex items-center gap-3 shrink-0 ml-auto"
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => setViewingId(t.id),
       className: "text-[#1B4332] text-xs font-semibold underline"
     }, "Performance"), /*#__PURE__*/React.createElement("button", {
       onClick: () => setEditingId(t.id),
       className: "text-[#1B4332] text-xs font-semibold underline"
-    }, "Edit"))));
+    }, "Edit")));
   })))));
 }
 
