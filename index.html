@@ -701,13 +701,13 @@ function MatchCard({
     ...dragHandleProps,
     title: "Drag to reorder",
     className: "cursor-move select-none text-[#F5EFDC]/40 hover:text-[#E8A33D] text-base leading-none shrink-0"
-  }, "⠿"), /*#__PURE__*/React.createElement("span", {
-    className: "flex-1 text-[#F5EFDC] text-sm font-mono truncate"
+  }, "⠿"), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 min-w-0 flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[#F5EFDC] text-sm font-mono"
   }, t1 && t2 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
-    className: "mr-1 inline-flex items-center gap-1"
+    className: "inline-flex items-center gap-1"
   }, /*#__PURE__*/React.createElement("input", {
     type: "radio",
-    className: "accent-[#E8A33D] mr-0.5",
+    className: "accent-[#E8A33D]",
     checked: match.battingFirstId === match.team1Id,
     onChange: () => patch({
       battingFirstId: match.team1Id
@@ -715,11 +715,13 @@ function MatchCard({
   }), /*#__PURE__*/React.createElement(TeamBadge, {
     team: t1,
     size: 10
-  })), "v", /*#__PURE__*/React.createElement("label", {
-    className: "ml-1 inline-flex items-center gap-1"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "inline-flex items-center opacity-70"
+  }, "v"), /*#__PURE__*/React.createElement("label", {
+    className: "inline-flex items-center gap-1"
   }, /*#__PURE__*/React.createElement("input", {
     type: "radio",
-    className: "accent-[#E8A33D] mr-0.5",
+    className: "accent-[#E8A33D]",
     checked: match.battingFirstId === match.team2Id,
     onChange: () => patch({
       battingFirstId: match.team2Id
@@ -728,8 +730,8 @@ function MatchCard({
     team: t2,
     size: 10
   })), /*#__PURE__*/React.createElement("span", {
-    className: "text-[#F5EFDC]/40 ml-1"
-  }, "(tick who batted first)")) : /*#__PURE__*/React.createElement("span", {
+    className: "text-[#F5EFDC]/40 text-xs inline-flex items-center"
+  }, "(1st Innings)")) : /*#__PURE__*/React.createElement("span", {
     className: "text-[#F5EFDC]/40 italic"
   }, "Pick both teams")), /*#__PURE__*/React.createElement("button", {
     onClick: () => setEditing(v => !v),
