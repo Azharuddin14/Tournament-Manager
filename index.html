@@ -2026,7 +2026,7 @@ function TeamManagerScreen({
       team: t,
       nameClassName: "truncate w-16 shrink-0"
     })), /*#__PURE__*/React.createElement("div", {
-      className: "grid grid-cols-4 gap-1 text-xs text-[#16213E]/70 font-mono w-40 shrink-0"
+      className: "grid grid-cols-4 gap-1 text-xs text-[#16213E]/70 font-mono w-40 shrink-0 ml-auto"
     }, /*#__PURE__*/React.createElement("span", {
       title: "Championships"
     }, sc.championships > 0 ? `🏆×${sc.championships}` : ""), /*#__PURE__*/React.createElement("span", {
@@ -2395,6 +2395,96 @@ const FONT_OPTIONS = [{
   body: "'Times New Roman', serif",
   display: "'Times New Roman', serif",
   mono: "'Times New Roman', serif"
+}, {
+  id: "arial",
+  label: "Arial",
+  body: "Arial, sans-serif",
+  display: "Arial, sans-serif",
+  mono: "Arial, sans-serif"
+}, {
+  id: "helvetica",
+  label: "Helvetica",
+  body: "Helvetica, Arial, sans-serif",
+  display: "Helvetica, Arial, sans-serif",
+  mono: "Helvetica, Arial, sans-serif"
+}, {
+  id: "trebuchet",
+  label: "Trebuchet MS",
+  body: "'Trebuchet MS', sans-serif",
+  display: "'Trebuchet MS', sans-serif",
+  mono: "'Trebuchet MS', sans-serif"
+}, {
+  id: "tahoma",
+  label: "Tahoma",
+  body: "Tahoma, sans-serif",
+  display: "Tahoma, sans-serif",
+  mono: "Tahoma, sans-serif"
+}, {
+  id: "palatino",
+  label: "Palatino",
+  body: "'Palatino Linotype', Palatino, serif",
+  display: "'Palatino Linotype', Palatino, serif",
+  mono: "'Palatino Linotype', Palatino, serif"
+}, {
+  id: "garamond",
+  label: "Garamond",
+  body: "Garamond, serif",
+  display: "Garamond, serif",
+  mono: "Garamond, serif"
+}, {
+  id: "cambria",
+  label: "Cambria",
+  body: "Cambria, serif",
+  display: "Cambria, serif",
+  mono: "Cambria, serif"
+}, {
+  id: "consolas",
+  label: "Consolas",
+  body: "Consolas, monospace",
+  display: "Consolas, monospace",
+  mono: "Consolas, monospace"
+}, {
+  id: "lucida",
+  label: "Lucida Console",
+  body: "'Lucida Console', monospace",
+  display: "'Lucida Console', monospace",
+  mono: "'Lucida Console', monospace"
+}, {
+  id: "comicsans",
+  label: "Comic Sans MS",
+  body: "'Comic Sans MS', cursive",
+  display: "'Comic Sans MS', cursive",
+  mono: "'Comic Sans MS', cursive"
+}, {
+  id: "impact",
+  label: "Impact",
+  body: "Impact, fantasy",
+  display: "Impact, fantasy",
+  mono: "Impact, fantasy"
+}, {
+  id: "segoe",
+  label: "Segoe UI",
+  body: "'Segoe UI', sans-serif",
+  display: "'Segoe UI', sans-serif",
+  mono: "'Segoe UI', sans-serif"
+}, {
+  id: "centurygothic",
+  label: "Century Gothic",
+  body: "'Century Gothic', sans-serif",
+  display: "'Century Gothic', sans-serif",
+  mono: "'Century Gothic', sans-serif"
+}, {
+  id: "bookman",
+  label: "Bookman Old Style",
+  body: "'Bookman Old Style', serif",
+  display: "'Bookman Old Style', serif",
+  mono: "'Bookman Old Style', serif"
+}, {
+  id: "calibri",
+  label: "Calibri",
+  body: "Calibri, sans-serif",
+  display: "Calibri, sans-serif",
+  mono: "Calibri, sans-serif"
 }];
 function App() {
   const [state, setState] = useState(loadState);
