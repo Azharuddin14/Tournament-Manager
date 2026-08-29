@@ -326,8 +326,33 @@ function getStageReached(season, teamId) {
     if (winnerId === teamId) return isFinal ? "Winner" : `Reached ${round.name}`;
     return isFinal ? "Runner-up" : round.name;
   }
-  const inGroup = (season.groups || []).some(g => g.teamIds.includes(teamId)) || (season.preQualGroups || []).some(g => g.teamIds.includes(teamId));
-  return inGroup ? "Group stage" : "Did not play";
+  const inGroup = (season.groups || []).some(g => g.teamIds.includes(teamId));
+  if (inGroup) return "Group stage";
+  const inPreQual = (season.preQualGroups || []).some(g => g.teamIds.includes(teamId));
+  if (inPreQual) return "Pre-Quals";
+  return "Did not play";
+}
+
+// per-season highest-stage results, bucketed into the 5 categories shown on a
+// team's profile: Championships / Runner-ups / Semis / Group Stage / Pre-Quals
+function getStageBreakdown(seasons, teamId) {
+  let championships = 0,
+    runnerUps = 0,
+    semis = 0,
+    groupStage = 0,
+    preQuals = 0;
+  seasons.forEach(season => {
+    const stage = getStageReached(season, teamId);
+    if (stage === "Did not play") return;
+    if (stage === "Winner") championships++;else if (stage === "Runner-up") runnerUps++;else if (stage === "Group stage") groupStage++;else if (stage === "Pre-Quals") preQuals++;else semis++; // any other knockout-round exit (Quarters, Semis, etc.)
+  });
+  return {
+    championships,
+    runnerUps,
+    semis,
+    groupStage,
+    preQuals
+  };
 }
 function getTeamRecordInSeason(season, teamId) {
   const inSeason = (season.groups || []).some(g => g.teamIds.includes(teamId)) || (season.preQualGroups || []).some(g => g.teamIds.includes(teamId)) || allSeasonMatches(season).some(m => m.team1Id === teamId || m.team2Id === teamId);
@@ -714,8 +739,7 @@ function MatchCard({
   teams,
   matchOvers,
   onChange,
-  onRemove,
-  dragHandleProps
+  onRemove
 }) {
   const [editing, setEditing] = useState(false);
   const t1 = getTeam(teams, match.team1Id);
@@ -732,11 +756,7 @@ function MatchCard({
     className: "bg-[#F5EFDC] rounded-lg overflow-hidden shadow-sm border border-[#1B4332]/15"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-[#1B4332] px-3 py-2 flex items-center gap-2"
-  }, dragHandleProps && /*#__PURE__*/React.createElement("span", {
-    ...dragHandleProps,
-    title: "Drag to reorder",
-    className: "cursor-move select-none text-[#F5EFDC]/40 hover:text-[#E8A33D] text-base leading-none shrink-0"
-  }, "⠿"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     className: "flex-1 min-w-0 flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[#F5EFDC] text-sm font-mono"
   }, t1 && t2 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
     className: "inline-flex items-center gap-1"
@@ -886,7 +906,6 @@ function MatchList({
   onRemove,
   onReorder
 }) {
-  const [dragIdx, setDragIdx] = useState(null);
   if (!matches.length) {
     return /*#__PURE__*/React.createElement("p", {
       className: "text-[#F5EFDC]/50 text-sm italic"
@@ -896,23 +915,28 @@ function MatchList({
     className: "space-y-2"
   }, matches.map((m, idx) => /*#__PURE__*/React.createElement("div", {
     key: m.id,
-    onDragOver: e => e.preventDefault(),
-    onDrop: () => {
-      if (dragIdx !== null && dragIdx !== idx) onReorder(dragIdx, idx);
-      setDragIdx(null);
-    }
+    className: "flex items-start gap-1.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col shrink-0 pt-1"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => idx > 0 && onReorder(idx, idx - 1),
+    disabled: idx === 0,
+    title: "Move up",
+    className: "text-[#F5EFDC]/50 hover:text-[#E8A33D] disabled:opacity-20 disabled:hover:text-[#F5EFDC]/50 text-xs leading-none px-1 py-0.5"
+  }, "▲"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => idx < matches.length - 1 && onReorder(idx, idx + 1),
+    disabled: idx === matches.length - 1,
+    title: "Move down",
+    className: "text-[#F5EFDC]/50 hover:text-[#E8A33D] disabled:opacity-20 disabled:hover:text-[#F5EFDC]/50 text-xs leading-none px-1 py-0.5"
+  }, "▼")), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 min-w-0"
   }, /*#__PURE__*/React.createElement(MatchCard, {
     match: m,
     teams: teams,
     matchOvers: matchOvers,
     onChange: patched => onUpdate(m.id, patched),
-    onRemove: () => onRemove(m.id),
-    dragHandleProps: {
-      draggable: true,
-      onDragStart: () => setDragIdx(idx),
-      onDragEnd: () => setDragIdx(null)
-    }
-  }))));
+    onRemove: () => onRemove(m.id)
+  })))));
 }
 
 // ============================================================
@@ -1242,7 +1266,7 @@ function TeamProfile({
 }) {
   const records = seasons.map(s => getTeamRecordInSeason(s, team.id)).filter(Boolean);
   const overall = getOverallAndH2H(seasons, team.id);
-  const stageCounts = getOverallStageCounts(seasons, team.id);
+  const breakdown = getStageBreakdown(seasons, team.id);
   return /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1264,8 +1288,8 @@ function TeamProfile({
   }, "Overall record · all seasons"), /*#__PURE__*/React.createElement("div", {
     className: "text-sm font-mono text-[#16213E]"
   }, "Played ", overall.played, " · Won ", overall.won, " · Lost ", overall.lost, overall.tied ? ` · Tied ${overall.tied}` : ""), /*#__PURE__*/React.createElement("div", {
-    className: "text-sm font-mono text-[#16213E] mt-1"
-  }, "🏆 Championships ", stageCounts.championships, " · 🥈 Runner-ups ", stageCounts.runnerUps, " · 🥉 Semis ", stageCounts.semis)), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-2 pt-2 border-t border-[#1B4332]/10 space-y-0.5 text-sm font-mono text-[#16213E]"
+  }, /*#__PURE__*/React.createElement("div", null, "🏆 Championships — ", breakdown.championships), /*#__PURE__*/React.createElement("div", null, "🥈 Runner-ups — ", breakdown.runnerUps), /*#__PURE__*/React.createElement("div", null, "🥉 Semis — ", breakdown.semis), /*#__PURE__*/React.createElement("div", null, "Group Stage — ", breakdown.groupStage), /*#__PURE__*/React.createElement("div", null, "Pre-Quals — ", breakdown.preQuals))), /*#__PURE__*/React.createElement("ul", {
     className: "space-y-2"
   }, records.map((rec, i) => /*#__PURE__*/React.createElement("li", {
     key: i,
@@ -1597,7 +1621,6 @@ function App() {
   const [activeSeasonId, setActiveSeasonId] = useState(null);
   const [newSeasonName, setNewSeasonName] = useState("");
   const [newSeasonOvers, setNewSeasonOvers] = useState(20);
-  const [dragSeasonIdx, setDragSeasonIdx] = useState(null);
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
@@ -1729,19 +1752,20 @@ function App() {
     const info = getChampionInfo(s);
     return /*#__PURE__*/React.createElement("li", {
       key: s.id,
-      className: "bg-[#F5EFDC] rounded-lg p-4 flex items-center gap-2",
-      onDragOver: e => e.preventDefault(),
-      onDrop: () => {
-        if (dragSeasonIdx !== null && dragSeasonIdx !== idx) reorderSeasons(dragSeasonIdx, idx);
-        setDragSeasonIdx(null);
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      draggable: true,
-      onDragStart: () => setDragSeasonIdx(idx),
-      onDragEnd: () => setDragSeasonIdx(null),
-      title: "Drag to reorder",
-      className: "cursor-move select-none text-[#16213E]/30 hover:text-[#1B4332] text-base leading-none shrink-0"
-    }, "⠿"), /*#__PURE__*/React.createElement("div", {
+      className: "bg-[#F5EFDC] rounded-lg p-4 flex items-center gap-2"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-col shrink-0"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => idx > 0 && reorderSeasons(idx, idx - 1),
+      disabled: idx === 0,
+      title: "Move up",
+      className: "text-[#16213E]/40 hover:text-[#1B4332] disabled:opacity-20 disabled:hover:text-[#16213E]/40 text-xs leading-none px-1 py-0.5"
+    }, "▲"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => idx < state.seasons.length - 1 && reorderSeasons(idx, idx + 1),
+      disabled: idx === state.seasons.length - 1,
+      title: "Move down",
+      className: "text-[#16213E]/40 hover:text-[#1B4332] disabled:opacity-20 disabled:hover:text-[#16213E]/40 text-xs leading-none px-1 py-0.5"
+    }, "▼")), /*#__PURE__*/React.createElement("div", {
       className: "min-w-0 flex-1"
     }, /*#__PURE__*/React.createElement("div", {
       className: "font-display text-lg text-[#16213E] truncate"
