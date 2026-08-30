@@ -1438,7 +1438,7 @@ function TournamentResultPanel({
   }))), /*#__PURE__*/React.createElement("div", {
     className: "grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#1B4332]/10"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "p-4 text-center"
+    className: "p-4 text-center bg-[#C0C0C0]/20"
   }, /*#__PURE__*/React.createElement("div", {
     className: "text-[#16213E]/50 text-[10px] uppercase tracking-widest font-semibold"
   }, "Runner-up"), /*#__PURE__*/React.createElement("div", {
@@ -1595,7 +1595,7 @@ function AwardsSection({
     className: "flex items-center justify-between"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-sm text-[#16213E]"
-  }, pot.name, pot.teamId ? ` (${teamName(allTeams, pot.teamId)})` : ""), /*#__PURE__*/React.createElement("button", {
+  }, "🧢 ", pot.name, pot.teamId ? ` (${teamName(allTeams, pot.teamId)})` : ""), /*#__PURE__*/React.createElement("button", {
     onClick: () => setEditing(true),
     className: "text-[#1B4332] text-xs font-semibold underline"
   }, "Edit"))));
@@ -2138,7 +2138,8 @@ function SeasonEditor({
   allSeasons,
   onUpdateSeason,
   onClose,
-  bodyFont
+  bodyFont,
+  onDeleteSeason
 }) {
   const [tab, setTab] = useState("groups");
   const [editingDetails, setEditingDetails] = useState(false);
@@ -2261,7 +2262,7 @@ function SeasonEditor({
     placeholder: "Venue (optional)",
     className: "w-full bg-[#F5EFDC] border border-[#E8A33D]/50 rounded px-3 py-1.5 text-sm text-[#16213E] focus:outline-none focus:ring-2 focus:ring-[#E8A33D]"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-2"
+    className: "flex items-center gap-2"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: saveDetails,
     className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-1.5 rounded"
@@ -2272,7 +2273,10 @@ function SeasonEditor({
       setVenueDraft(season.venue || "");
     },
     className: "text-[#F5EFDC]/60 text-sm px-2"
-  }, "Cancel"))) : /*#__PURE__*/React.createElement("div", {
+  }, "Cancel"), onDeleteSeason && /*#__PURE__*/React.createElement("button", {
+    onClick: () => onDeleteSeason(season.id),
+    className: "text-[#C1443C] text-sm font-semibold px-2 ml-auto"
+  }, "Delete season"))) : /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between gap-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "min-w-0"
@@ -2288,7 +2292,7 @@ function SeasonEditor({
     className: "text-[#F5EFDC]/60 text-xs mt-0.5"
   }, season.oversPerMatch, "-over matches", season.venue ? ` · 📍 ${season.venue}` : ""), season.playerOfTournament && /*#__PURE__*/React.createElement("p", {
     className: "text-[#E8A33D]/80 text-[10px] mt-0.5"
-  }, "🏅 ", season.playerOfTournament.name, season.playerOfTournament.teamId ? ` (${teamName(teams, season.playerOfTournament.teamId)})` : "")), /*#__PURE__*/React.createElement("button", {
+  }, "🧢 ", season.playerOfTournament.name, season.playerOfTournament.teamId ? ` (${teamName(teams, season.playerOfTournament.teamId)})` : "")), /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
   }, "‹ Seasons"))), /*#__PURE__*/React.createElement("div", {
@@ -2542,11 +2546,12 @@ function App() {
     setScreen("season");
   }
   function deleteSeason(id) {
-    if (!window.confirm("Delete this season and all its data?")) return;
+    if (!window.confirm("Delete this season and all its data?")) return false;
     setState(s => ({
       ...s,
       seasons: s.seasons.filter(x => x.id !== id)
     }));
+    return true;
   }
   function updateSeason(updated) {
     setState(s => ({
@@ -2619,7 +2624,10 @@ function App() {
       allSeasons: state.seasons,
       onUpdateSeason: updateSeason,
       onClose: () => setScreen("home"),
-      bodyFont: font.body
+      bodyFont: font.body,
+      onDeleteSeason: id => {
+        if (deleteSeason(id)) setScreen("home");
+      }
     }));
   }
   if (screen === "records") {
@@ -2721,23 +2729,30 @@ function App() {
     }, "▼")), /*#__PURE__*/React.createElement("div", {
       className: "min-w-0 flex-1"
     }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-baseline gap-2 flex-wrap"
+    }, /*#__PURE__*/React.createElement("span", {
       className: "font-display text-lg text-[#16213E] truncate"
-    }, s.name), s.venue && /*#__PURE__*/React.createElement("div", {
-      className: "text-xs text-[#16213E]/60 mt-1"
-    }, "📍 ", s.venue), info ? /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center gap-1.5 mt-1.5 bg-[#E8A33D]/20 rounded px-2 py-1 w-fit text-[#1B4332]"
+    }, s.name), s.venue && /*#__PURE__*/React.createElement("span", {
+      className: "text-xs text-[#16213E]/60"
+    }, "📍 ", s.venue)), info ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-1.5 mt-1.5 text-[#1B4332]"
     }, /*#__PURE__*/React.createElement("span", {
       className: "text-sm"
     }, "🏆"), /*#__PURE__*/React.createElement(TeamBadge, {
       team: getTeam(state.teams, info.championId),
       size: 13
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "font-display text-sm text-[#1B4332] font-bold"
-    }, "Champion")) : /*#__PURE__*/React.createElement("div", {
+    })), info.runnerUpId && /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-1.5 mt-0.5 text-[#16213E]/70"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-xs"
+    }, "🥈"), /*#__PURE__*/React.createElement(TeamBadge, {
+      team: getTeam(state.teams, info.runnerUpId),
+      size: 10
+    }))) : /*#__PURE__*/React.createElement("div", {
       className: "text-xs text-[#16213E]/50 italic mt-1.5"
     }, "In progress"), s.playerOfTournament && /*#__PURE__*/React.createElement("div", {
       className: "text-xs text-[#16213E]/60 mt-1"
-    }, "🏅 ", s.playerOfTournament.name, s.playerOfTournament.teamId ? ` (${teamName(state.teams, s.playerOfTournament.teamId)})` : "")), /*#__PURE__*/React.createElement("div", {
+    }, "🧢 ", s.playerOfTournament.name, s.playerOfTournament.teamId ? ` (${teamName(state.teams, s.playerOfTournament.teamId)})` : "")), /*#__PURE__*/React.createElement("div", {
       className: "flex gap-2 shrink-0"
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => {
@@ -2745,10 +2760,7 @@ function App() {
         setScreen("season");
       },
       className: "bg-[#1B4332] text-[#F5EFDC] text-xs font-semibold px-3 py-1.5 rounded"
-    }, "Open"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => deleteSeason(s.id),
-      className: "text-[#C1443C] text-xs font-semibold px-2"
-    }, "Delete")));
+    }, "Open")));
   }))));
 }
 try {
