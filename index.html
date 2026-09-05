@@ -352,6 +352,39 @@ function getTopChases(seasons, n, teamFilter) {
   return getAllInnings(seasons, teamFilter).filter(i => i.chasing && i.won).sort((a, b) => Number(b.score.runs) - Number(a.score.runs)).slice(0, n);
 }
 
+// lowest total that was successfully defended (team batting first won) — ranked
+// ascending, i.e. the smallest score that still won the match first
+function getLowestDefended(seasons, n, teamFilter) {
+  const rows = [];
+  seasons.forEach(season => {
+    const addFrom = (matches, stage) => {
+      matches.forEach(m => {
+        if (!isPlayed(m)) return;
+        const firstId = m.battingFirstId || m.team1Id;
+        const secondId = firstId === m.team1Id ? m.team2Id : m.team1Id;
+        const firstScore = firstId === m.team1Id ? m.score1 : m.score2;
+        const secondScore = firstId === m.team1Id ? m.score2 : m.score1;
+        const winnerId = getWinnerId(m);
+        if (winnerId !== firstId) return; // only successful defenses count
+        if (teamFilter && firstId !== teamFilter) return;
+        rows.push({
+          teamId: firstId,
+          oppId: secondId,
+          score: firstScore,
+          oppScore: secondScore,
+          matchOvers: season.oversPerMatch,
+          seasonName: season.name,
+          stage
+        });
+      });
+    };
+    (season.preQualGroups || []).forEach(g => addFrom(g.matches, `Pre-Qual: ${g.name}`));
+    (season.groups || []).forEach(g => addFrom(g.matches, `Group ${g.name}`));
+    (season.knockoutRounds || []).forEach(r => addFrom(r.matches, r.name));
+  });
+  return rows.sort((a, b) => Number(a.score.runs) - Number(b.score.runs)).slice(0, n);
+}
+
 // top N individual batting performances pulled out of MOM entries
 // top N individual batting performances pulled out of MOM entries — MOM always
 // belongs to a player on the winning side, so each performance is attributed
@@ -1634,6 +1667,42 @@ function InningsRecordRow({
     className: "truncate"
   }, row.stage))));
 }
+
+// like InningsRecordRow, but also shows the opponent's score (used for "lowest
+// total defended" — seeing the chasing side's score gives the margin context)
+function DefendedRecordRow({
+  row,
+  allTeams,
+  rank
+}) {
+  return /*#__PURE__*/React.createElement("li", {
+    className: "flex items-center justify-between px-4 py-2.5 border-b border-[#1B4332]/10 last:border-0 gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 min-w-0 shrink-0"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[#16213E]/40 font-mono text-xs w-4 shrink-0"
+  }, rank), /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(allTeams, row.teamId),
+    size: 11,
+    nameClassName: "truncate w-14 shrink-0"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "font-mono text-sm text-[#16213E] shrink-0"
+  }, formatInningsScore(row.score, row.matchOvers))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3 text-[10px] text-[#16213E]/50 shrink-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-right leading-tight w-20 shrink-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "truncate"
+  }, teamName(allTeams, row.oppId)), /*#__PURE__*/React.createElement("div", {
+    className: "truncate font-mono"
+  }, formatInningsScore(row.oppScore, row.matchOvers))), /*#__PURE__*/React.createElement("div", {
+    className: "text-right leading-tight w-20 shrink-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "truncate"
+  }, row.seasonName), /*#__PURE__*/React.createElement("div", {
+    className: "truncate"
+  }, row.stage))));
+}
 function MomBattingRow({
   row,
   rank,
@@ -1718,10 +1787,11 @@ function RecordLists({
   const topScores = getTopScores(seasons, n, teamFilter);
   const lowScores = getLowScores(seasons, n, teamFilter);
   const topChases = getTopChases(seasons, n, teamFilter);
+  const lowestDefended = getLowestDefended(seasons, n, teamFilter);
   const topBatting = getTopMomBatting(seasons, n, teamFilter);
   const topBowling = getTopMomBowling(seasons, n, teamFilter);
   const momTally = teamFilter ? [] : getMomTallyAllSeasons(seasons).slice(0, n);
-  const nothingAtAll = topScores.length === 0 && lowScores.length === 0 && topChases.length === 0 && topBatting.length === 0 && topBowling.length === 0 && momTally.length === 0;
+  const nothingAtAll = topScores.length === 0 && lowScores.length === 0 && topChases.length === 0 && lowestDefended.length === 0 && topBatting.length === 0 && topBowling.length === 0 && momTally.length === 0;
   if (nothingAtAll) {
     return /*#__PURE__*/React.createElement("p", {
       className: "text-[#F5EFDC]/50 text-sm italic"
@@ -1746,6 +1816,13 @@ function RecordLists({
   }))), lowScores.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
     title: `Lowest ${n} Scores`
   }, lowScores.map((row, i) => /*#__PURE__*/React.createElement(InningsRecordRow, {
+    key: i,
+    row: row,
+    allTeams: allTeams,
+    rank: i + 1
+  }))), lowestDefended.length > 0 && /*#__PURE__*/React.createElement(RecordBlock, {
+    title: `Lowest ${n} Totals Defended`
+  }, lowestDefended.map((row, i) => /*#__PURE__*/React.createElement(DefendedRecordRow, {
     key: i,
     row: row,
     allTeams: allTeams,
