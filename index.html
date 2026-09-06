@@ -1882,6 +1882,31 @@ function RecordsScreen({
 // ============================================================
 // Pitchside — team roster & team profile screen
 // ============================================================
+
+// visual differentiation for the "Highest stage" line — Winner/Runner-up get
+// their own color+icon, knockout rounds (Quarters/Semis/custom names) get a
+// bronze marker, and Group/Pre-Qual stages stay muted/neutral
+function getStageStyle(stage) {
+  if (stage === "Winner") return {
+    icon: "🏆",
+    color: "#C8880A"
+  };
+  if (stage === "Runner-up") return {
+    icon: "🥈",
+    color: "#7A8699"
+  };
+  if (stage === "Group stage" || stage === "Pre-Quals" || stage === "Did not play") {
+    return {
+      icon: "",
+      color: "#1B4332",
+      opacity: 0.6
+    };
+  }
+  return {
+    icon: "🥉",
+    color: "#A3672B"
+  }; // any knockout round short of the final
+}
 function SeasonMatchesCard({
   season,
   record,
@@ -1890,6 +1915,7 @@ function SeasonMatchesCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const matchesWithStage = expanded ? getTeamMatchesWithStage(season, team.id) : [];
+  const stageStyle = getStageStyle(record.stage);
   return /*#__PURE__*/React.createElement("li", {
     className: "bg-[#F5EFDC] rounded-lg p-4"
   }, /*#__PURE__*/React.createElement("button", {
@@ -1904,8 +1930,12 @@ function SeasonMatchesCard({
   }, expanded ? "▾ Hide matches" : "▸ Show matches")), /*#__PURE__*/React.createElement("div", {
     className: "text-xs font-mono text-[#16213E]/70 mt-1"
   }, "Played ", record.played, " · Won ", record.won, " · Lost ", record.lost, record.tied ? ` · Tied ${record.tied}` : ""), /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] uppercase tracking-wide text-[#1B4332]/60 font-semibold mt-1.5"
-  }, "Highest stage: ", record.stage)), expanded && /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] uppercase tracking-wide font-semibold mt-1.5",
+    style: {
+      color: stageStyle.color,
+      opacity: stageStyle.opacity
+    }
+  }, stageStyle.icon ? `${stageStyle.icon} ` : "", "Highest stage: ", record.stage)), expanded && /*#__PURE__*/React.createElement("div", {
     className: "mt-3 pt-3 border-t border-[#1B4332]/10 space-y-2"
   }, matchesWithStage.filter(x => isPlayed(x.match)).length === 0 ? /*#__PURE__*/React.createElement("p", {
     className: "text-[#16213E]/40 text-xs italic"
