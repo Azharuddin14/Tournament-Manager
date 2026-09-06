@@ -225,6 +225,80 @@ function allSeasonMatches(season) {
   return list;
 }
 
+// all-time table across every saved season and every stage (Pre-Quals, Groups,
+// Knockouts all included) — ranked by Win%, tie-broken by NRR
+function getAllTimeTable(seasons) {
+  const stats = {};
+  seasons.forEach(season => {
+    const matches = allSeasonMatches(season);
+    matches.forEach(m => {
+      if (m.team1Id && !stats[m.team1Id]) stats[m.team1Id] = {
+        id: m.team1Id,
+        played: 0,
+        won: 0,
+        lost: 0,
+        tied: 0,
+        runsFor: 0,
+        oversFor: 0,
+        runsAgainst: 0,
+        oversAgainst: 0
+      };
+      if (m.team2Id && !stats[m.team2Id]) stats[m.team2Id] = {
+        id: m.team2Id,
+        played: 0,
+        won: 0,
+        lost: 0,
+        tied: 0,
+        runsFor: 0,
+        oversFor: 0,
+        runsAgainst: 0,
+        oversAgainst: 0
+      };
+    });
+    matches.forEach(m => {
+      if (!isPlayed(m)) return;
+      const s1 = stats[m.team1Id];
+      const s2 = stats[m.team2Id];
+      if (!s1 || !s2) return;
+      s1.played++;
+      s2.played++;
+      const o1 = oversForNRR(m.score1, season.oversPerMatch);
+      const o2 = oversForNRR(m.score2, season.oversPerMatch);
+      s1.runsFor += Number(m.score1.runs) || 0;
+      s1.oversFor += o1;
+      s1.runsAgainst += Number(m.score2.runs) || 0;
+      s1.oversAgainst += o2;
+      s2.runsFor += Number(m.score2.runs) || 0;
+      s2.oversFor += o2;
+      s2.runsAgainst += Number(m.score1.runs) || 0;
+      s2.oversAgainst += o1;
+      const winnerId = getWinnerId(m);
+      if (!winnerId) {
+        s1.tied++;
+        s2.tied++;
+      } else if (winnerId === m.team1Id) {
+        s1.won++;
+        s2.lost++;
+      } else {
+        s2.won++;
+        s1.lost++;
+      }
+    });
+  });
+  const rows = Object.values(stats).filter(s => s.played > 0).map(s => {
+    const forRate = s.oversFor > 0 ? s.runsFor / s.oversFor : 0;
+    const againstRate = s.oversAgainst > 0 ? s.runsAgainst / s.oversAgainst : 0;
+    const winPct = s.played > 0 ? s.won / s.played * 100 : 0;
+    return {
+      ...s,
+      nrr: forRate - againstRate,
+      winPct
+    };
+  });
+  rows.sort((a, b) => b.winPct - a.winPct || b.nrr - a.nrr);
+  return rows;
+}
+
 // pulls the player's name out of a freeform MOM line like "Head 58(45)" or
 // "Bumrah 4/25" by stripping the trailing batting/bowling figures
 function extractMomName(momText) {
@@ -1851,12 +1925,62 @@ function RecordLists({
     className: "text-[#F5EFDC]/40 text-[10px] italic px-1"
   }, "Batting/bowling records are pulled from Man of the Match entries only, attributed to the winning team."));
 }
+function AllTimeTable({
+  teams,
+  rows
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#F5EFDC] rounded-lg overflow-hidden overflow-x-auto"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "w-full text-sm"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    className: "bg-[#1B4332] text-[#E8A33D] text-left"
+  }, /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal"
+  }, "#"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal"
+  }, "Team"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "P"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "W"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "L"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-center"
+  }, "T"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-right"
+  }, "Win%"), /*#__PURE__*/React.createElement("th", {
+    className: "px-3 py-2 font-display font-normal text-right"
+  }, "NRR"))), /*#__PURE__*/React.createElement("tbody", null, rows.map((s, i) => /*#__PURE__*/React.createElement("tr", {
+    key: s.id,
+    className: "border-b border-[#1B4332]/10"
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 font-mono text-[#16213E]/60"
+  }, i + 1), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-[#16213E] font-medium"
+  }, /*#__PURE__*/React.createElement(TeamBadge, {
+    team: getTeam(teams, s.id)
+  })), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono"
+  }, s.played), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono"
+  }, s.won), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono"
+  }, s.lost), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-center font-mono"
+  }, s.tied), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-right font-mono"
+  }, s.winPct.toFixed(0), "%"), /*#__PURE__*/React.createElement("td", {
+    className: "px-3 py-2 text-right font-mono"
+  }, s.nrr >= 0 ? "+" : "", s.nrr.toFixed(3)))))));
+}
 function RecordsScreen({
   teams,
   seasons,
   onClose,
   bodyFont
 }) {
+  const allTimeRows = getAllTimeTable(seasons);
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen bg-[#0F2C22]",
     style: {
@@ -1870,8 +1994,13 @@ function RecordsScreen({
     onClick: onClose,
     className: "bg-[#E8A33D] text-[#16213E] font-semibold text-sm px-4 py-2 rounded shrink-0"
   }, "‹ Seasons")), /*#__PURE__*/React.createElement("main", {
-    className: "max-w-2xl mx-auto px-4 py-6"
-  }, /*#__PURE__*/React.createElement(RecordLists, {
+    className: "max-w-2xl mx-auto px-4 py-6 space-y-5"
+  }, allTimeRows.length > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    className: "font-display text-[#E8A33D] text-base mb-2"
+  }, "All-Time Table"), /*#__PURE__*/React.createElement(AllTimeTable, {
+    teams: teams,
+    rows: allTimeRows
+  })), /*#__PURE__*/React.createElement(RecordLists, {
     seasons: seasons,
     allTeams: teams,
     n: 10,
