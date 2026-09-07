@@ -295,7 +295,7 @@ function getAllTimeTable(seasons) {
       winPct
     };
   });
-  rows.sort((a, b) => b.winPct - a.winPct || b.nrr - a.nrr);
+  rows.sort((a, b) => b.won - a.won || b.winPct - a.winPct || b.nrr - a.nrr);
   return rows;
 }
 
